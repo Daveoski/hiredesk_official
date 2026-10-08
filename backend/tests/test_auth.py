@@ -30,6 +30,65 @@ def test_login_with_wrong_password_is_rejected(client):
     assert response.status_code == 401
 
 
+def test_google_auth_can_sign_in_or_register(client, monkeypatch):
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "google_auth_enabled", True)
+    monkeypatch.setattr(settings, "google_client_id", "test-client-id")
+    monkeypatch.setattr(
+        "app.auth.router.google_id_token.verify_oauth2_token",
+        lambda *_args, **_kwargs: {
+            "email": "google.user@acme.com",
+            "email_verified": True,
+            "name": "Google User",
+        },
+    )
+
+    created = client.post(
+        "/auth/google",
+        json={"id_token": "verified-token", "company_name": "Acme"},
+    )
+    assert created.status_code == 200
+    assert created.json()["token_type"] == "bearer"
+
+    existing = client.post(
+        "/auth/google",
+        json={"id_token": "verified-token", "company_name": "Acme"},
+    )
+    assert existing.status_code == 200
+
+    me = client.get("/auth/me", headers={"Authorization": f"Bearer {existing.json()['access_token']}"})
+    assert me.status_code == 200
+    assert me.json()["email"] == "google.user@acme.com"
+
+
+def test_google_auth_requires_configuration(client, monkeypatch):
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "google_auth_enabled", False)
+    monkeypatch.setattr(settings, "google_client_id", "")
+
+    response = client.post("/auth/google", json={"id_token": "any-token"})
+    assert response.status_code == 503
+
+
+def test_google_auth_rejects_unverified_email(client, monkeypatch):
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "google_auth_enabled", True)
+    monkeypatch.setattr(settings, "google_client_id", "test-client-id")
+    monkeypatch.setattr(
+        "app.auth.router.google_id_token.verify_oauth2_token",
+        lambda *_args, **_kwargs: {"email": "unverified@example.com", "email_verified": False},
+    )
+
+    response = client.post("/auth/google", json={"id_token": "verified-token"})
+    assert response.status_code == 401
+
+
 def test_protected_endpoints_need_a_valid_token(client):
     assert client.get("/jobs").status_code == 401
     assert client.get("/jobs", headers={"Authorization": "Bearer not-a-real-token"}).status_code == 401

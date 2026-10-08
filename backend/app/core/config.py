@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     frontend_base_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
 
+    google_auth_enabled: bool = False
+    google_client_id: str = ""
+
     cloudinary_cloud_name: str = ""
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
