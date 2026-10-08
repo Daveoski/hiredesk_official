@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Design tokens. Colors are shadcn-style variables so every component reads from one place. */
+:root {
+  --background: #f5f6fb;
+  --foreground: #14162b;
+  --card: #ffffff;
+  --card-foreground: #14162b;
+  --muted: #eceef7;
+  --muted-foreground: #5d6180;
+  --border: #e0e3f0;
+  --input: #d5d9ea;
+  --primary: #3a36e0;
+  --primary-foreground: #ffffff;
+  --accent: #e8e9ff;
+  --accent-foreground: #2723a8;
+  --destructive: #d62f56;
+  --ring: #3a36e0;
+  --radius: 0.75rem;
+
+  /* One color per pipeline stage. Used by the "stage thread" everywhere. */
+  --stage-applied: #7b8099;
+  --stage-screen: #1d8fd1;
+  --stage-interview: #7a3fe0;
+  --stage-offer: #d98a0b;
+  --stage-hired: #12966a;
+  --stage-rejected: #d62f56;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --color-stage-applied: var(--stage-applied);
+  --color-stage-screen: var(--stage-screen);
+  --color-stage-interview: var(--stage-interview);
+  --color-stage-offer: var(--stage-offer);
+  --color-stage-hired: var(--stage-hired);
+  --color-stage-rejected: var(--stage-rejected);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-figtree), ui-sans-serif, sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* The one orchestrated moment: the stage thread draws itself once when a page opens. */
+@keyframes thread-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.thread-draw {
+  transform-origin: left;
+  animation: thread-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .thread-draw { animation: none; }
+}
