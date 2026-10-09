@@ -1,15 +1,16 @@
 "use client";
 
-import { CalendarClock, CalendarPlus, ClipboardCheck, Video } from "lucide-react";
-import { EmptyState, ErrorState } from "@/components/shared/empty-state";
-import { Avatar } from "@/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, CalendarCheck2, CalendarClock, CalendarPlus, ClipboardCheck, ClipboardPen } from "lucide-react";
+import Link from "next/link";
+import { ErrorState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useApplications, useInterviews } from "@/lib/queries";
-import type { Interview } from "@/lib/types";
+import type { Interview, User } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
-import { Stat, TaskRow } from "./parts";
+import { AllClear, Agenda, DashboardHero, QuietEmpty, Section, StatTile, TaskRow } from "./parts";
 
-export function InterviewerDashboard() {
+export function InterviewerDashboard({ user }: { user: User }) {
   const interviews = useInterviews();
   const applications = useApplications();
 
@@ -21,99 +22,102 @@ export function InterviewerDashboard() {
   const toSchedule = list.filter((item) => item.status === "assigned");
   const scorecardsDue = list.filter((item) => item.status === "scheduled" && hasEnded(item));
   const upcoming = list
-    .filter((item) => item.status === "scheduled" && !hasEnded(item))
+    .filter((item) => item.status === "scheduled" && !hasEnded(item) && item.starts_at)
     .sort((a, b) => (a.starts_at ?? "").localeCompare(b.starts_at ?? ""));
   const completed = list.filter((item) => item.status === "completed");
   const loading = interviews.isLoading;
   const tasks = toSchedule.length + scorecardsDue.length;
 
+  const summary = loading
+    ? "Loading your interviews..."
+    : tasks > 0
+      ? `You have ${tasks} interview task${tasks === 1 ? "" : "s"} waiting. Clearing them keeps candidates moving.`
+      : upcoming.length > 0
+        ? `You're all caught up. Your next interview is ${formatDateTime(upcoming[0].starts_at!)}.`
+        : "You're all caught up. New interview assignments will appear here.";
+
   return (
     <>
+      <DashboardHero
+        name={user.full_name}
+        summary={summary}
+        figure={tasks}
+        figureLabel={tasks === 1 ? "task waiting on you" : "tasks waiting on you"}
+        loading={loading}
+        action={
+          <Button asChild>
+            <Link href="/interviews">
+              Open my interviews <ArrowRight />
+            </Link>
+          </Button>
+        }
+      />
+
       {interviews.isError && <ErrorState message={interviews.error.message} />}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Waiting for a date" value={toSchedule.length} loading={loading} tone="attention" />
-        <Stat label="Scorecards to submit" value={scorecardsDue.length} loading={loading} tone="attention" />
-        <Stat label="Upcoming interviews" value={upcoming.length} loading={loading} />
-        <Stat label="Completed" value={completed.length} loading={loading} />
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <StatTile label="Waiting for a date" value={toSchedule.length} icon={CalendarPlus} loading={loading} status="warning" hint={toSchedule.length ? "Pick a time" : "None waiting"} delay={60} />
+        <StatTile label="Scorecards to submit" value={scorecardsDue.length} icon={ClipboardPen} loading={loading} status="warning" hint={scorecardsDue.length ? "Interview finished" : "All submitted"} delay={120} />
+        <StatTile label="Upcoming interviews" value={upcoming.length} icon={CalendarClock} loading={loading} delay={180} />
+        <StatTile label="Completed" value={completed.length} icon={CalendarCheck2} loading={loading} hint="Scorecards submitted" delay={240} />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Your to-do list</CardTitle>
-            <CardDescription>
-              {tasks === 0 ? "You are all caught up." : `${tasks} thing${tasks === 1 ? "" : "s"} need${tasks === 1 ? "s" : ""} you.`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {tasks === 0 ? (
-              <EmptyState icon={ClipboardCheck} title="Nothing to do right now" description="New interview assignments will show up here." />
-            ) : (
-              <ul className="divide-y">
-                {toSchedule.map((interview) => (
-                  <TaskRow
-                    key={interview.id}
-                    icon={CalendarPlus}
-                    title={candidate(interview)?.full_name ?? "Candidate"}
-                    detail={`${candidate(interview)?.job_title ?? "Interview"} · pick a date and meeting format`}
-                    href="/interviews"
-                    action="Schedule"
-                  />
-                ))}
-                {scorecardsDue.map((interview) => (
-                  <TaskRow
-                    key={interview.id}
-                    icon={ClipboardCheck}
-                    title={candidate(interview)?.full_name ?? "Candidate"}
-                    detail={`Interviewed ${interview.starts_at ? formatDateTime(interview.starts_at) : ""} · scorecard due`}
-                    href="/interviews"
-                    action="Submit scorecard"
-                  />
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      <div className="mt-6 grid gap-6 lg:grid-cols-5">
+        <Section title="Your to-do list" description="Do these first. Each opens the interview." className="lg:col-span-3" delay={300}>
+          {loading ? (
+            <Skeleton className="h-40" />
+          ) : tasks === 0 ? (
+            <AllClear title="Nothing waiting on you" description="When you're assigned an interview, it will show up here." />
+          ) : (
+            <ul className="divide-y">
+              {scorecardsDue.map((interview) => (
+                <TaskRow
+                  key={interview.id}
+                  urgent
+                  icon={ClipboardCheck}
+                  title={candidate(interview)?.full_name ?? "Candidate"}
+                  detail={`${candidate(interview)?.job_title ?? "Interview"} · interviewed ${interview.starts_at ? formatDateTime(interview.starts_at) : ""}`}
+                  href="/interviews"
+                  action="Submit scorecard"
+                />
+              ))}
+              {toSchedule.map((interview) => (
+                <TaskRow
+                  key={interview.id}
+                  icon={CalendarPlus}
+                  title={candidate(interview)?.full_name ?? "Candidate"}
+                  detail={`${candidate(interview)?.job_title ?? "Interview"} · choose a date and meeting format`}
+                  href="/interviews"
+                  action="Schedule"
+                />
+              ))}
+            </ul>
+          )}
+        </Section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Your upcoming interviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {upcoming.length === 0 ? (
-              <EmptyState icon={CalendarClock} title="No interviews scheduled" />
-            ) : (
-              <ul className="divide-y">
-                {upcoming.slice(0, 8).map((interview) => {
-                  const person = candidate(interview);
-                  return (
-                    <li key={interview.id} className="flex items-center gap-3 py-3">
-                      <Avatar name={person?.full_name ?? "?"} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">{person?.full_name ?? "Candidate"}</p>
-                        <p className="truncate text-sm text-muted-foreground">
-                          {interview.starts_at && formatDateTime(interview.starts_at)}
-                          {interview.duration_minutes ? ` · ${interview.duration_minutes} min` : ""}
-                          {interview.meeting_type === "in_person" && interview.location ? ` · ${interview.location}` : ""}
-                        </p>
-                      </div>
-                      {interview.meeting_type === "virtual" && interview.meeting_url && (
-                        <a
-                          href={interview.meeting_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                        >
-                          <Video className="size-4" /> Join
-                        </a>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+        <Section title="Your schedule" description="Upcoming interviews." className="lg:col-span-2" href="/interviews" linkLabel="All interviews" delay={360}>
+          {loading ? (
+            <Skeleton className="h-40" />
+          ) : upcoming.length === 0 ? (
+            <QuietEmpty icon={CalendarClock} title="No interviews scheduled" />
+          ) : (
+            <Agenda
+              items={upcoming.slice(0, 6).map((interview) => ({
+                id: interview.id,
+                starts_at: interview.starts_at!,
+                title: candidate(interview)?.full_name ?? "Candidate",
+                detail: [
+                  candidate(interview)?.job_title,
+                  interview.duration_minutes && `${interview.duration_minutes} min`,
+                  interview.meeting_type === "in_person" ? interview.location : "Video call",
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
+                joinUrl: interview.meeting_type === "virtual" ? interview.meeting_url : null,
+              }))}
+            />
+          )}
+        </Section>
       </div>
     </>
   );

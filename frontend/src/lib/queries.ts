@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./api";
 import type {
   Application,
@@ -76,6 +76,8 @@ export const useProgressReport = (days: number, enabled = true) =>
     queryKey: ["progress-report", days],
     queryFn: () => api.get<ProgressReport>(`/reports/progress?days=${days}`),
     enabled,
+    // Keep showing the previous period while the new one loads, so the page does not jump.
+    placeholderData: keepPreviousData,
   });
 
 // ---- Changing data ----
