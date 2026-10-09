@@ -96,16 +96,42 @@ def schedule_assigned_interview(
     application = db.get(Application, interview.application_id)
     job = db.get(Job, application.job_id)
     meeting_details = body.meeting_url if body.meeting_type.value == "virtual" else body.location
+    interview_link = f"{get_settings().frontend_base_url}/interviews/{interview.id}"
+    candidate_message = (
+        f"Hi {application.full_name},\n\n"
+        f"Your interview for {job.title} is scheduled for {body.starts_at.isoformat()}.\n"
+        f"{'Join here' if body.meeting_type.value == 'virtual' else 'Location'}: {meeting_details}\n\n"
+        f"Interview details: {interview_link}\n"
+    )
     background_tasks.add_task(
         send_email,
         to=application.email,
         subject=f"Interview scheduled: {job.title}",
-        text=(
-            f"Hi {application.full_name},\n\n"
-            f"Your interview for {job.title} is scheduled for {body.starts_at.isoformat()}.\n"
-            f"{'Join here' if body.meeting_type.value == 'virtual' else 'Location'}: {meeting_details}\n"
-        ),
+        text=candidate_message,
     )
+
+    recipients: set[str] = {interviewer.email}
+    if job.hiring_manager_id:
+        manager = db.get(User, job.hiring_manager_id)
+        if manager:
+            recipients.add(manager.email)
+    admins = db.exec(
+        select(User).where(User.company_id == interviewer.company_id, User.role == Role.company_admin)
+    ).all()
+    recipients.update(admin.email for admin in admins)
+    internal_message = (
+        f"Interview scheduled for {application.full_name} ({application.email}) for {job.title}.\n"
+        f"Time: {body.starts_at.isoformat()}\n"
+        f"{'Meeting link' if body.meeting_type.value == 'virtual' else 'Location'}: {meeting_details}\n"
+        f"Open interview: {interview_link}\n"
+    )
+    for recipient in recipients:
+        background_tasks.add_task(
+            send_email,
+            to=recipient,
+            subject=f"Interview scheduled: {application.full_name} — {job.title}",
+            text=internal_message,
+        )
     return interview
 
 

@@ -16,10 +16,18 @@ ALLOWED_DOCUMENT_EXTENSIONS = ALLOWED_CV_EXTENSIONS | {".png", ".jpg", ".jpeg"}
 MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
 
 
-def _upload(file: UploadFile, folder: str) -> str:
+def _upload(file: UploadFile, folder: str, max_bytes: int) -> str:
     settings = get_settings()
-    if not settings.cloudinary_cloud_name:
+    if not settings.cloudinary_cloud_name or not settings.cloudinary_api_key or not settings.cloudinary_api_secret:
         raise HTTPException(503, "File storage is not configured")
+
+    # UploadFile.size is optional and is not populated by every multipart client.
+    # Measure the stream ourselves so the limit cannot be bypassed.
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+    if size > max_bytes:
+        raise HTTPException(413, f"The file must be {max_bytes // (1024 * 1024)} MB or smaller")
 
     cloudinary.config(
         cloud_name=settings.cloudinary_cloud_name,
@@ -36,7 +44,7 @@ def _upload(file: UploadFile, folder: str) -> str:
         )
     except Exception as error:
         logger.exception("Cloudinary upload failed")
-        raise HTTPException(502, "Could not upload the CV, please try again") from error
+        raise HTTPException(502, "Could not upload the file, please try again") from error
     return result["secure_url"]
 
 
@@ -47,7 +55,7 @@ def upload_cv(cv: UploadFile) -> str:
         raise HTTPException(422, "The CV must be a PDF, DOC or DOCX file")
     if cv.size is None or cv.size > MAX_CV_BYTES:
         raise HTTPException(413, "The CV must be 5 MB or smaller")
-    return _upload(cv, "hiredesk/cvs")
+    return _upload(cv, "hiredesk/cvs", MAX_CV_BYTES)
 
 
 def upload_supporting_document(document: UploadFile) -> dict[str, str]:
@@ -58,5 +66,5 @@ def upload_supporting_document(document: UploadFile) -> dict[str, str]:
         raise HTTPException(413, "Each supporting document must be 10 MB or smaller")
     return {
         "name": Path(document.filename or "document").name,
-        "url": _upload(document, "hiredesk/application-documents"),
+        "url": _upload(document, "hiredesk/application-documents", MAX_DOCUMENT_BYTES),
     }
