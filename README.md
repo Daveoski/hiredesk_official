@@ -56,6 +56,10 @@ The frontend has `bun run typecheck` and `bun run build` checks. Test files are 
 
 The repo deploys as two Vercel projects from the same GitHub repository. Every push to `main` redeploys both.
 
+- Site: https://hiredesk-app.vercel.app (Vercel project `hiredesk-official`)
+- API: https://hiredesk-api.vercel.app (Vercel project `hiredesk-api`, interactive docs at `/docs`)
+- Database: Neon `hiredesk-db`, connected to `hiredesk-api`
+
 | Vercel project | Root Directory | Framework | Environment variables |
 |---|---|---|---|
 | `hiredesk-api` | `backend` | FastAPI (auto-detected from `app/main.py`) | `DATABASE_URL` (injected by Neon), `JWT_SECRET`, `FRONTEND_BASE_URL`, `CORS_ORIGINS`, optional `CORS_ORIGIN_REGEX`, `GOOGLE_AUTH_ENABLED`, `GOOGLE_CLIENT_ID`, `CLOUDINARY_*`, `RESEND_API_KEY`, `EMAIL_FROM` |
