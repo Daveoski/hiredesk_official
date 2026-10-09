@@ -4,6 +4,12 @@ import resend
 
 from app.core.config import get_settings
 
+
+def _send(payload: dict) -> None:
+    result = resend.Emails.send(payload)
+    if isinstance(result, dict) and result.get("error"):
+        logger.error("Resend rejected email: %s", result["error"])
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,6 +26,6 @@ def send_email(to: str, subject: str, text: str) -> None:
 
     resend.api_key = settings.resend_api_key
     try:
-        resend.Emails.send({"from": settings.email_from, "to": [to], "subject": subject, "text": text})
+        _send({"from": settings.email_from, "to": [to], "subject": subject, "text": text})
     except Exception:
         logger.exception("Could not send the email to %s", to)

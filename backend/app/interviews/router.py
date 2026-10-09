@@ -10,6 +10,7 @@ from app.auth.dependencies import CurrentUser, HiringManagerUser, InterviewerUse
 from app.auth.permissions import get_visible_application, get_visible_interview, visible_interviews
 from app.candidates.models import Application
 from app.core.email import send_email
+from app.core.config import get_settings
 from app.db.session import DbSession
 from app.interviews.models import Interview, InterviewStatus
 from app.interviews.schemas import InterviewCreate, InterviewRead, InterviewSchedule
@@ -58,7 +59,8 @@ def schedule_interview(
         text=(
             f"Hi {interviewer.full_name},\n\n"
             f"You have been assigned an interview with {application.full_name} for {job.title}.\n"
-            "Please sign in to choose a date and meeting format.\n"
+            "Please sign in to choose a date and meeting format.\n\n"
+            f"Open HireDesk: {get_settings().frontend_base_url}/interviews\n"
         ),
     )
     return interview

@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The .env file next to app/ (the backend folder), wherever the server is started from.
@@ -22,12 +22,12 @@ class Settings(BaseSettings):
     google_auth_enabled: bool = False
     google_client_id: str = ""
 
-    cloudinary_cloud_name: str = ""
-    cloudinary_api_key: str = ""
-    cloudinary_api_secret: str = ""
+    cloudinary_cloud_name: str = "vrwgerwd"
+    cloudinary_api_key: str = Field(default="", validation_alias=AliasChoices("CLOUDINARY_API_KEY", "key"))
+    cloudinary_api_secret: str = Field(default="", validation_alias=AliasChoices("CLOUDINARY_API_SECRET", "secret"))
 
-    resend_api_key: str = ""
-    email_from: str = "HireDesk <onboarding@resend.dev>"
+    resend_api_key: str = Field(default="", validation_alias=AliasChoices("RESEND_API_KEY", "API_KEY"))
+    email_from: str = "dave <onboarding@resend.dev>"
 
 
 @lru_cache
