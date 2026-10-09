@@ -53,8 +53,6 @@ def upload_cv(cv: UploadFile) -> str:
     extension = Path(cv.filename or "").suffix.lower()
     if extension not in ALLOWED_CV_EXTENSIONS:
         raise HTTPException(422, "The CV must be a PDF, DOC or DOCX file")
-    if cv.size is None or cv.size > MAX_CV_BYTES:
-        raise HTTPException(413, "The CV must be 5 MB or smaller")
     return _upload(cv, "hiredesk/cvs", MAX_CV_BYTES)
 
 
@@ -62,8 +60,6 @@ def upload_supporting_document(document: UploadFile) -> dict[str, str]:
     extension = Path(document.filename or "").suffix.lower()
     if extension not in ALLOWED_DOCUMENT_EXTENSIONS:
         raise HTTPException(422, "Supporting documents must be PDF, DOC, DOCX, PNG or JPG files")
-    if document.size is None or document.size > MAX_DOCUMENT_BYTES:
-        raise HTTPException(413, "Each supporting document must be 10 MB or smaller")
     return {
         "name": Path(document.filename or "document").name,
         "url": _upload(document, "hiredesk/application-documents", MAX_DOCUMENT_BYTES),

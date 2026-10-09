@@ -4,7 +4,7 @@ from datetime import timedelta
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from psycopg.errors import ExclusionViolation
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import col
+from sqlmodel import col, select
 
 from app.auth.dependencies import CurrentUser, HiringManagerUser, InterviewerUser
 from app.auth.permissions import get_visible_application, get_visible_interview, visible_interviews
