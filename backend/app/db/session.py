@@ -6,7 +6,9 @@ from sqlmodel import Session, create_engine
 
 from app.core.config import get_settings
 
-engine = create_engine(get_settings().database_url, pool_pre_ping=True)
+# prepare_threshold=None turns off server-side prepared statements, which a connection
+# pooler in transaction mode (Neon's pooled DATABASE_URL on Vercel) cannot share.
+engine = create_engine(get_settings().database_url, pool_pre_ping=True, connect_args={"prepare_threshold": None})
 
 
 def get_db() -> Iterator[Session]:
