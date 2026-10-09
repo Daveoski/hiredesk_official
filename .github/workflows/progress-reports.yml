@@ -3,7 +3,9 @@
 #
 # Repository secrets used:
 #   NEON_DATABASE_URL_UNPOOLED  the production database (same secret as the migrations)
-#   RESEND_API_KEY              sends the emails
+#   SMTP_USERNAME, SMTP_PASSWORD  Gmail address + app password that send the emails
+#                               (scripts/setup-google-signin-and-email.sh sets these), or
+#   RESEND_API_KEY              send through Resend instead
 #   EMAIL_FROM                  optional, e.g. "HireDesk <reports@yourdomain.com>"
 #   FRONTEND_BASE_URL           optional, the live site, for the dashboard link in the email
 name: Progress reports
@@ -27,6 +29,9 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.NEON_DATABASE_URL_UNPOOLED }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SMTP_HOST: ${{ secrets.SMTP_USERNAME && 'smtp.gmail.com' || '' }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HireDesk <onboarding@resend.dev>' }}
       FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL || 'http://localhost:3000' }}
       # Settings validation needs a value; the report never signs tokens.
@@ -41,8 +46,8 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Send progress reports
         run: |
-          if [ -z "$DATABASE_URL" ] || [ -z "$RESEND_API_KEY" ]; then
-            echo "::warning::NEON_DATABASE_URL_UNPOOLED or RESEND_API_KEY secret is not set; no reports sent."
+          if [ -z "$DATABASE_URL" ] || { [ -z "$SMTP_HOST" ] && [ -z "$RESEND_API_KEY" ]; }; then
+            echo "::warning::Set NEON_DATABASE_URL_UNPOOLED and either SMTP_USERNAME/SMTP_PASSWORD or RESEND_API_KEY; no reports sent."
             exit 0
           fi
           python -m app.reports.send_progress_reports --days "${{ github.event.inputs.days || '7' }}"

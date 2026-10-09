@@ -76,6 +76,10 @@ The repo deploys as two Vercel projects from the same GitHub repository. Every p
 - Cloudinary stores candidate CVs and supporting documents.
 - Resend sends transactional email when configured. Company admins are emailed as hiring progresses (stage moves, hires and rejections, interviews, scorecards, new teammates).
 
+### Google sign-in and invitation emails on the live site
+
+Run `bash scripts/setup-google-signin-and-email.sh` from Git Bash. It walks through registering the site with the Google OAuth client and creating a Gmail app password, checks the password, sends a test invitation, and saves the SMTP settings to `backend/.env` and the `hiredesk-api` Vercel project.
+
 ### Scheduled progress reports
 
 Admins can view the progress report on their dashboard and email it to themselves. To send every company's admins the report automatically, schedule this command from `backend/`:
