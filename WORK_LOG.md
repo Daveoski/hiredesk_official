@@ -12,14 +12,15 @@
 - Removed unsupported performance statistics and an unverified testimonial so the marketing copy reflects implemented backend behavior.
 - Connected Google Identity Services to login and registration. The backend now verifies Google-issued ID tokens and verified email claims before reusing or creating a company-admin account.
 - Configured the supplied Google Web client ID in the ignored local frontend and backend environment files. Preserved the existing frontend API URL and enabled the backend Google auth setting.
-- Created a separate local `hiredesk_dev` database and applied all three Alembic migrations; the existing `hiredesk_test` database was left untouched.
+- Created a separate local `hiredesk_dev` database and applied all three Alembic migrations. Cleared fixture rows only from the dedicated `hiredesk_test` database; preserved the local development account and invitation.
 - Started the backend on `127.0.0.1:8002` and the frontend on `localhost:3000`.
 - Verification: frontend typecheck and production build passed; all 11 authentication tests passed; login and registration returned HTTP 200; backend health returned `ok`; the Google sign-in widget rendered in the browser; mobile viewport had no horizontal overflow.
+- Cleaned local artifacts by removing the empty SQLite test database and duplicate npm lockfiles, keeping Bun as the frontend package manager.
+- Added repository setup/layout guidance and ignore rules for secrets, local databases, and generated frontend output; updated backend `.env` to persist the working `hiredesk_dev` connection.
 
 ## Follow-up
 
 - Complete a real Google sign-in using a Google account and confirm `http://localhost:3000` is listed as an authorized JavaScript origin for the OAuth client.
-- The currently running backend uses a process-level database URL override for `hiredesk_dev` because the saved backend database URL was unreachable. Persist that development database URL if the backend is restarted.
 
 ## Daily Entry Template
 

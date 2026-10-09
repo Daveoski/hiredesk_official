@@ -10,3 +10,22 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.pgpass
+
+# Local databases and test artifacts
+*.db
+*.sqlite
+*.sqlite3
+
+# Frontend dependencies and generated output
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
