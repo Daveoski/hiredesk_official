@@ -16,7 +16,19 @@ class UserInviteCreate(BaseModel):
     role: Literal["hiring_manager", "interviewer"]
 
 
+class PendingInvitationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    email: str
+    full_name: str
+    role: Role
+    created_at: datetime
+    expires_at: datetime
+
+
 class UserInvitationRead(BaseModel):
+    id: uuid.UUID
     email: str
     full_name: str
     role: Role

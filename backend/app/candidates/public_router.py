@@ -108,6 +108,11 @@ def apply_to_job(
     """
     job = get_open_job(db, job_id)
     email = email.lower()
+    # Collapse line breaks and runs of spaces: names end up in email subjects and lists.
+    full_name = " ".join(full_name.split())
+    phone = " ".join(phone.split())
+    if not full_name:
+        raise HTTPException(422, "Enter your name")
 
     if (cv is None) == (cv_public_id is None):
         raise HTTPException(422, "Attach your CV")

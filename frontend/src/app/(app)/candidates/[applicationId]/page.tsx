@@ -224,11 +224,14 @@ export default function CandidatePage() {
                           {item.location && <p className="text-sm text-muted-foreground">{item.location}</p>}
                         </div>
                         <Badge className="capitalize">{item.status}</Badge>
-                        {isMine && item.status === "scheduled" && card?.status === "pending" && (
-                          <Button size="sm" onClick={() => setScoring(item.id)}>
-                            Fill scorecard
-                          </Button>
-                        )}
+                        {isMine && item.status === "scheduled" && card?.status === "pending" &&
+                          (item.starts_at && new Date(item.starts_at).getTime() <= Date.now() ? (
+                            <Button size="sm" onClick={() => setScoring(item.id)}>
+                              Fill scorecard
+                            </Button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Scorecard opens when the interview starts</span>
+                          ))}
                         {manager && (item.status === "assigned" || item.status === "scheduled") && (
                           <Button size="sm" variant="ghost" onClick={() => setCancelling(item.id)}>
                             Cancel

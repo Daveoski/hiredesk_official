@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { AuthLayout } from "@/components/layout/auth-layout";
@@ -20,7 +20,23 @@ import { useAuthStore } from "@/stores/auth-store";
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+// Only same-site paths, so a crafted link cannot send people to another website after login.
+function safeNext(value: string | null) {
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
+}
+
+function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const next = safeNext(params.get("next"));
+  const expired = params.get("expired") === "1";
   const setSession = useAuthStore((state) => state.setSession);
   const [error, setError] = useState("");
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
@@ -40,7 +56,7 @@ export default function LoginPage() {
       useAuthStore.setState({ token: token.access_token });
       const user = await api.get<User>("/auth/me");
       setSession(token.access_token, user);
-      router.replace(HOME[user.role]);
+      router.replace(next ?? HOME[user.role]);
     } catch (err) {
       useAuthStore.getState().logout();
       setError(err instanceof Error ? err.message : "Could not log in");
@@ -55,7 +71,7 @@ export default function LoginPage() {
       useAuthStore.setState({ token: token.access_token });
       const user = await api.get<User>("/auth/me");
       setSession(token.access_token, user);
-      router.replace(HOME[user.role]);
+      router.replace(next ?? HOME[user.role]);
     } catch (err) {
       useAuthStore.getState().logout();
       setError(err instanceof Error ? err.message : "Google sign-in failed");
@@ -75,6 +91,12 @@ export default function LoginPage() {
         </span>
         Secure access
       </div>
+
+      {expired && (
+        <p role="status" className="mb-4 rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground">
+          Your session expired. Sign in again to pick up where you left off.
+        </p>
+      )}
 
       <GoogleSignInButton onCredential={handleGoogleSignIn} disabled={googleSubmitting} />
 

@@ -42,7 +42,11 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
   // (for example a rejected Google token) stays on the page so its message can be shown.
   if (response.status === 401 && sendsToken) {
     useAuthStore.getState().logout();
-    if (typeof window !== "undefined") window.location.href = "/login";
+    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      // Come back to the same page after signing in again.
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/login?expired=1&next=${next}`;
+    }
   }
 
   const body = response.status === 204 ? null : await response.json().catch(() => null);
@@ -56,6 +60,7 @@ export const api = {
     request<T>(path, { method: "POST", body: data === undefined ? undefined : JSON.stringify(data) }),
   patch: <T>(path: string, data: unknown) => request<T>(path, { method: "PATCH", body: JSON.stringify(data) }),
   put: <T>(path: string, data: unknown) => request<T>(path, { method: "PUT", body: JSON.stringify(data) }),
+  del: <T = null>(path: string) => request<T>(path, { method: "DELETE" }),
   // Public endpoints and the login form send form data and need no token.
   postForm: <T>(path: string, form: FormData | URLSearchParams, auth = false) =>
     request<T>(

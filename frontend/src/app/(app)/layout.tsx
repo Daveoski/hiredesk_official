@@ -24,7 +24,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    if (hydrated && !token) router.replace("/login");
+    if (hydrated && !token) {
+      router.replace(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    }
   }, [hydrated, token, router]);
 
   if (!mounted || !hydrated || !token) return null;

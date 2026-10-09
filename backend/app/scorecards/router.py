@@ -59,6 +59,8 @@ def submit_scorecard(
         raise HTTPException(409, "This scorecard was already submitted")
     if interview.status != InterviewStatus.scheduled:
         raise HTTPException(409, "The interview must be scheduled before submitting a scorecard")
+    if interview.starts_at is None or interview.starts_at > utcnow():
+        raise HTTPException(409, "You can submit the scorecard once the interview has started")
 
     ratings = [
         ScorecardRating(

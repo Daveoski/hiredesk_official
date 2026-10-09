@@ -44,6 +44,7 @@ def test_admin_is_emailed_as_hiring_progresses(world, outbox):
     scheduled = world.schedule(application_id, world.ann_id, world.slot(10))
     assert scheduled.status_code == 200, scheduled.text
     interview_id = scheduled.json()["id"]
+    world.hold(interview_id)
     submitted = world.client.put(f"/interviews/{interview_id}/scorecard", headers=world.ann, json=SCORECARD)
     assert submitted.status_code == 200, submitted.text
     rejected = world.client.post(

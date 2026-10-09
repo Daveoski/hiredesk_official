@@ -12,11 +12,25 @@ def scorecards_visible_to(world, headers, application_id):
 
 
 def two_interviews(world):
-    """One candidate interviewed by Ann (10:00) and Bob (12:00). Returns the ids."""
+    """One candidate interviewed by Ann (10:00) and Bob (12:00), both already held. Returns the ids."""
     application_id = world.apply()
     ann_interview = world.schedule(application_id, world.ann_id, world.slot(10)).json()["id"]
     bob_interview = world.schedule(application_id, world.bob_id, world.slot(12)).json()["id"]
+    world.hold(ann_interview, bob_interview)
     return application_id, ann_interview, bob_interview
+
+
+def test_a_scorecard_waits_until_the_interview_has_started(world):
+    application_id = world.apply()
+    interview_id = world.schedule(application_id, world.ann_id, world.slot(10)).json()["id"]
+    url = f"/interviews/{interview_id}/scorecard"
+
+    early = world.client.put(url, headers=world.ann, json=scorecard(("Skills", 4)))
+    assert early.status_code == 409
+    assert "once the interview has started" in early.json()["detail"]
+
+    world.hold(interview_id)
+    assert world.client.put(url, headers=world.ann, json=scorecard(("Skills", 4))).status_code == 200
 
 
 def test_interviewer_submits_a_scorecard(world):

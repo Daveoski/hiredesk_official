@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+import uuid
 from datetime import timedelta
 from html import escape
 
@@ -14,9 +15,12 @@ from app.db.common import utcnow
 from app.core.email import send_email
 from app.db.session import DbSession
 from app.users.models import Invitation, Role, User
-from app.users.schemas import UserInviteCreate, UserInvitationRead, UserRead
+from app.users.schemas import PendingInvitationRead, UserInviteCreate, UserInvitationRead, UserRead
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+INVITATION_DAYS = 7
 
 
 @router.post("", response_model=UserInvitationRead, status_code=201)
@@ -24,23 +28,69 @@ def create_user(body: UserInviteCreate, admin: AdminUser, db: DbSession):
     """The company admin invites a hiring manager or interviewer to join the team."""
     if db.exec(select(User.id).where(User.email == body.email)).first() is not None:
         raise HTTPException(409, "This email is already registered")
-    pending = db.exec(
-        select(Invitation).where(Invitation.email == body.email, Invitation.accepted_at.is_(None))
+    active = db.exec(
+        select(Invitation.id).where(
+            Invitation.email == body.email, Invitation.accepted_at.is_(None), Invitation.expires_at > utcnow()
+        )
     ).first()
-    if pending is not None and pending.expires_at > utcnow():
-        raise HTTPException(409, "An active invitation already exists for this email")
+    if active is not None:
+        raise HTTPException(409, "This person already has an open invitation. Resend it from the Team page.")
 
+    # Re-inviting someone whose invitation expired reuses that row, so the list shows them once.
+    invitation = db.exec(
+        select(Invitation).where(
+            Invitation.company_id == admin.company_id,
+            Invitation.email == body.email,
+            Invitation.accepted_at.is_(None),
+        )
+    ).first() or Invitation(company_id=admin.company_id, email=body.email, token_hash="", expires_at=utcnow())
+    invitation.invited_by_id = admin.id
+    invitation.full_name = body.full_name
+    invitation.role = Role(body.role)
+    return _issue_and_send(db, invitation, admin)
+
+
+@router.get("/invitations", response_model=list[PendingInvitationRead])
+def list_pending_invitations(admin: AdminUser, db: DbSession):
+    """Invitations that have not been accepted yet, newest first, including expired ones."""
+    return db.exec(
+        select(Invitation)
+        .where(Invitation.company_id == admin.company_id, Invitation.accepted_at.is_(None))
+        .order_by(Invitation.created_at.desc())
+    ).all()
+
+
+@router.post("/invitations/{invitation_id}/resend", response_model=UserInvitationRead)
+def resend_invitation(invitation_id: uuid.UUID, admin: AdminUser, db: DbSession):
+    """Email a fresh link: the old link stops working and the invitation gets 7 more days."""
+    invitation = _get_pending_invitation(db, admin, invitation_id)
+    if db.exec(select(User.id).where(User.email == invitation.email)).first() is not None:
+        raise HTTPException(409, "This email is already registered")
+    return _issue_and_send(db, invitation, admin)
+
+
+@router.delete("/invitations/{invitation_id}", status_code=204)
+def revoke_invitation(invitation_id: uuid.UUID, admin: AdminUser, db: DbSession):
+    """Withdraw an invitation; its link stops working."""
+    db.delete(_get_pending_invitation(db, admin, invitation_id))
+    db.commit()
+
+
+def _get_pending_invitation(db: DbSession, admin: User, invitation_id: uuid.UUID) -> Invitation:
+    invitation = db.get(Invitation, invitation_id)
+    if invitation is None or invitation.company_id != admin.company_id or invitation.accepted_at is not None:
+        raise HTTPException(404, "Invitation not found")
+    return invitation
+
+
+def _issue_and_send(db: DbSession, invitation: Invitation, admin: User) -> UserInvitationRead:
+    """Give the invitation a new one-time token and expiry, save it, and email the link.
+
+    Only the token's hash is stored, so a new token is the only way to share the link again.
+    """
     token = secrets.token_urlsafe(32)
-    expires_at = utcnow() + timedelta(days=7)
-    invitation = Invitation(
-        company_id=admin.company_id,
-        invited_by_id=admin.id,
-        email=body.email,
-        full_name=body.full_name,
-        role=Role(body.role),
-        token_hash=hashlib.sha256(token.encode()).hexdigest(),
-        expires_at=expires_at,
-    )
+    invitation.token_hash = hashlib.sha256(token.encode()).hexdigest()
+    invitation.expires_at = utcnow() + timedelta(days=INVITATION_DAYS)
     db.add(invitation)
     try:
         db.commit()
@@ -50,15 +100,18 @@ def create_user(body: UserInviteCreate, admin: AdminUser, db: DbSession):
 
     invite_url = f"{get_settings().frontend_base_url.rstrip('/')}/accept-invite?token={token}"
     company = db.get(Company, admin.company_id)
-    subject, text, html = invitation_email(body.full_name, admin.full_name, company.name, body.role, invite_url)
+    subject, text, html = invitation_email(
+        invitation.full_name, admin.full_name, company.name, invitation.role.value, invite_url
+    )
     # Sent now, not in the background, so the admin learns whether it went out
     # and can share the link another way if it did not.
-    email_sent = send_email(to=body.email, subject=subject, text=text, html=html)
+    email_sent = send_email(to=invitation.email, subject=subject, text=text, html=html)
     return UserInvitationRead(
-        email=body.email,
-        full_name=body.full_name,
-        role=body.role,
-        expires_at=expires_at,
+        id=invitation.id,
+        email=invitation.email,
+        full_name=invitation.full_name,
+        role=invitation.role,
+        expires_at=invitation.expires_at,
         invite_url=invite_url,
         email_sent=email_sent,
     )

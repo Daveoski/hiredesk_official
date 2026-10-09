@@ -171,6 +171,19 @@ class World:
             },
         )
 
+    @staticmethod
+    def hold(*interview_ids: str) -> None:
+        """Let time pass: move scheduled interviews three days back, so they have already started."""
+        with engine.begin() as connection:
+            for interview_id in interview_ids:
+                connection.execute(
+                    text(
+                        "UPDATE interviews SET starts_at = starts_at - interval '3 days',"
+                        " ends_at = ends_at - interval '3 days' WHERE id = :id"
+                    ),
+                    {"id": interview_id},
+                )
+
     def parallel(self, *calls):
         """Send requests at the same moment, each from its own thread. A call is (method, url, kwargs)."""
         barrier = threading.Barrier(len(calls))

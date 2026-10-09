@@ -38,6 +38,72 @@ def test_admin_is_told_when_the_invitation_email_fails(world, monkeypatch):
     assert "accept-invite?token=" in response.json()["invite_url"]  # the admin can still share it
 
 
+def token_of(invitation: dict) -> str:
+    return invitation["invite_url"].split("token=", 1)[1]
+
+
+def test_admin_lists_resends_and_revokes_pending_invitations(world, outbox):
+    first = invite(world).json()
+    invite(world, email="ivan@acme.com", role="interviewer")
+
+    pending = world.client.get("/users/invitations", headers=world.admin)
+    assert pending.status_code == 200
+    assert [item["email"] for item in pending.json()] == ["ivan@acme.com", "hana@acme.com"]
+    assert "token" not in pending.text  # links can't be recovered from the list
+
+    # Inviting the same person again points the admin to "resend".
+    again = invite(world)
+    assert again.status_code == 409 and "Resend" in again.json()["detail"]
+
+    # Resending emails a fresh link; the old link stops working.
+    outbox.clear()
+    resent = world.client.post(f"/users/invitations/{first['id']}/resend", headers=world.admin)
+    assert resent.status_code == 200
+    assert resent.json()["email_sent"] is True
+    assert resent.json()["invite_url"] != first["invite_url"]
+    assert outbox[-1]["to"] == "hana@acme.com"
+    assert world.client.post("/auth/accept-invite", json={"token": token_of(first), "password": "password123"}).status_code == 410
+    accepted = world.client.post("/auth/accept-invite", json={"token": token_of(resent.json()), "password": "password123"})
+    assert accepted.status_code == 201
+
+    # Revoking withdraws the link.
+    ivan = next(item for item in world.client.get("/users/invitations", headers=world.admin).json())
+    assert world.client.delete(f"/users/invitations/{ivan['id']}", headers=world.admin).status_code == 204
+    assert world.client.get("/users/invitations", headers=world.admin).json() == []
+    assert world.client.delete(f"/users/invitations/{ivan['id']}", headers=world.admin).status_code == 404
+
+
+def test_only_the_company_admin_manages_invitations(world):
+    invitation = invite(world).json()
+    for headers in (world.manager, world.ann):
+        assert world.client.get("/users/invitations", headers=headers).status_code == 403
+        assert world.client.post(f"/users/invitations/{invitation['id']}/resend", headers=headers).status_code == 403
+
+    other = world.client.post(
+        "/auth/register",
+        json={"company_name": "Other", "full_name": "Olu", "email": "olu@other.com", "password": "password123"},
+    )
+    assert other.status_code == 201
+    other_admin = world.login("olu@other.com")
+    assert world.client.get("/users/invitations", headers=other_admin).json() == []
+    assert world.client.delete(f"/users/invitations/{invitation['id']}", headers=other_admin).status_code == 404
+
+
+def test_an_expired_invitation_can_be_sent_again(world):
+    from sqlalchemy import text
+
+    from app.db.session import engine
+
+    invitation = invite(world).json()
+    with engine.begin() as connection:
+        connection.execute(text("UPDATE invitations SET expires_at = now() - interval '1 day'"))
+
+    again = invite(world)
+    assert again.status_code == 201
+    assert again.json()["id"] == invitation["id"]  # the same row, not a duplicate
+    assert len(world.client.get("/users/invitations", headers=world.admin).json()) == 1
+
+
 def test_smtp_is_used_when_configured(monkeypatch):
     from app.core import email
 

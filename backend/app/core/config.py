@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     database_url: str
     jwt_secret: str = Field(min_length=32)
-    access_token_expire_minutes: int = 60
+    access_token_expire_minutes: int = 480  # one working day
     frontend_base_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
     # Optional. Also allow origins matching this regex, e.g. Vercel preview deployments:

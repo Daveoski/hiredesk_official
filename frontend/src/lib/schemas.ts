@@ -62,7 +62,10 @@ export const assignInterviewerSchema = z.object({
 });
 
 export const scheduleSchema = z.object({
-  starts_at: z.string().min(1, "Choose a date and time"),
+  starts_at: z
+    .string()
+    .min(1, "Choose a date and time")
+    .refine((value) => new Date(value).getTime() > Date.now(), "Choose a time in the future"),
   meeting_type: z.enum(["virtual", "in_person"]),
   meeting_url: z.string().url("Enter a valid meeting link").optional().or(z.literal("")),
   location: z.string().max(500).optional(),

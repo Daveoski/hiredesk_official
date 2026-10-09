@@ -16,7 +16,17 @@ export interface User {
   password_login_enabled: boolean;
 }
 
+export interface PendingInvitation {
+  id: string;
+  email: string;
+  full_name: string;
+  role: Role;
+  created_at: string;
+  expires_at: string;
+}
+
 export interface UserInvitation {
+  id: string;
   email: string;
   full_name: string;
   role: Role;

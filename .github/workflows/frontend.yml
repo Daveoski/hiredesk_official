@@ -1,0 +1,28 @@
+# Frontend CI: typecheck and production-build the Next.js app on every change,
+# so a broken build is caught here instead of on the Vercel deployment.
+name: Frontend
+
+on:
+  push:
+    branches: [main]
+    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+  pull_request:
+    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: https://hiredesk-api.vercel.app
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run build

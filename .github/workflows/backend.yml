@@ -39,6 +39,12 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r requirements-dev.txt
       - run: pytest -q
+      - name: Models match migrations
+        # The tests migrated the database to head; fail if a model changed without a migration.
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          JWT_SECRET: ci-only-placeholder-secret-0123456789abcdef
+        run: alembic check
 
   migrate:
     # Only after the tests pass on main. Needs the repository secret NEON_DATABASE_URL_UNPOOLED

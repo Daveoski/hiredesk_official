@@ -7,6 +7,7 @@ import type {
   Interview,
   Job,
   JobStatus,
+  PendingInvitation,
   ProgressReport,
   Role,
   Scorecard,
@@ -205,6 +206,26 @@ export function useCreateUser() {
   return useMutation({
     mutationFn: (body: { full_name: string; email: string; role: Role }) =>
       api.post<UserInvitation>("/users", body),
-    onSuccess: () => refresh("users"),
+    onSuccess: () => refresh("users", "invitations"),
+  });
+}
+
+// Company admins only.
+export const usePendingInvitations = (enabled = true) =>
+  useQuery({ queryKey: ["invitations"], queryFn: () => api.get<PendingInvitation[]>("/users/invitations"), enabled });
+
+export function useResendInvitation() {
+  const refresh = useRefresh();
+  return useMutation({
+    mutationFn: (id: string) => api.post<UserInvitation>(`/users/invitations/${id}/resend`),
+    onSuccess: () => refresh("invitations"),
+  });
+}
+
+export function useRevokeInvitation() {
+  const refresh = useRefresh();
+  return useMutation({
+    mutationFn: (id: string) => api.del(`/users/invitations/${id}`),
+    onSuccess: () => refresh("invitations"),
   });
 }

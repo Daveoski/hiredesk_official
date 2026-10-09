@@ -77,7 +77,7 @@ export function InterviewerDashboard({ user }: { user: User }) {
                   icon={ClipboardCheck}
                   title={candidate(interview)?.full_name ?? "Candidate"}
                   detail={`${candidate(interview)?.job_title ?? "Interview"} · interviewed ${interview.starts_at ? formatDateTime(interview.starts_at) : ""}`}
-                  href="/interviews"
+                  href={`/candidates/${interview.application_id}`}
                   action="Submit scorecard"
                 />
               ))}

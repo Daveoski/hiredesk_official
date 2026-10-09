@@ -30,6 +30,7 @@ export default function InterviewsPage() {
   const users = useUsers(isManager(user));
   const [scheduling, setScheduling] = useState<string | null>(null);
 
+  const hasStarted = (item: Interview) => item.starts_at !== null && new Date(item.starts_at).getTime() <= Date.now();
   const interviewerName = (id: string) =>
     id === user?.id ? "You" : (users.data?.find((item) => item.id === id)?.full_name ?? "Interviewer");
 
@@ -61,6 +62,11 @@ export default function InterviewsPage() {
                 </Link>
                 {user?.role === "interviewer" && item.status === "assigned" && candidate && (
                   <Button size="sm" onClick={() => setScheduling(item.id)}>Schedule</Button>
+                )}
+                {user?.role === "interviewer" && item.status === "scheduled" && hasStarted(item) && (
+                  <Button size="sm" asChild>
+                    <Link href={`/candidates/${item.application_id}`}>Fill scorecard</Link>
+                  </Button>
                 )}
               </li>
             );

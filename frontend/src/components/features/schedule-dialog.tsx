@@ -62,6 +62,11 @@ function ScheduleForm({ application, onDone }: { application: Application; onDon
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+      {interviewers.data?.length === 0 && (
+        <p role="status" className="rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground">
+          Your company has no interviewers yet. Ask your company admin to invite one from the Team page.
+        </p>
+      )}
       <Field label="Interviewer" htmlFor="interviewer_id" error={errors.interviewer_id?.message}>
         <Select id="interviewer_id" {...register("interviewer_id")}>
           <option value="">Choose an interviewer</option>

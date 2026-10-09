@@ -13,6 +13,12 @@ import { scheduleSchema } from "@/lib/schemas";
 
 type ScheduleValues = z.infer<typeof scheduleSchema>;
 
+// "YYYY-MM-DDTHH:mm" in the browser's time zone, the format datetime-local's min expects.
+function localNow() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+
 export function InterviewScheduleDialog({
   interviewId,
   candidateName,
@@ -67,7 +73,7 @@ export function InterviewScheduleDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
           <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
             <Field label="Date and time" htmlFor="starts_at" error={errors.starts_at?.message}>
-              <Input id="starts_at" type="datetime-local" {...register("starts_at")} />
+              <Input id="starts_at" type="datetime-local" min={localNow()} {...register("starts_at")} />
             </Field>
             <Field label="Minutes" htmlFor="duration_minutes" error={errors.duration_minutes?.message}>
               <Input id="duration_minutes" type="number" min={15} max={240} step={15} {...register("duration_minutes", { valueAsNumber: true })} />
