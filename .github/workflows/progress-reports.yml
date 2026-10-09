@@ -1,0 +1,48 @@
+# Emails every company's admins their hiring progress report, every Monday at 08:00 UTC
+# (09:00 in Lagos). Can also be run by hand from the Actions tab with a custom period.
+#
+# Repository secrets used:
+#   NEON_DATABASE_URL_UNPOOLED  the production database (same secret as the migrations)
+#   RESEND_API_KEY              sends the emails
+#   EMAIL_FROM                  optional, e.g. "HireDesk <reports@yourdomain.com>"
+#   FRONTEND_BASE_URL           optional, the live site, for the dashboard link in the email
+name: Progress reports
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Report period in days"
+        default: "7"
+        required: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.NEON_DATABASE_URL_UNPOOLED }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HireDesk <onboarding@resend.dev>' }}
+      FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL || 'http://localhost:3000' }}
+      # Settings validation needs a value; the report never signs tokens.
+      JWT_SECRET: reports-only-placeholder-secret-0123456789
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r requirements.txt
+      - name: Send progress reports
+        run: |
+          if [ -z "$DATABASE_URL" ] || [ -z "$RESEND_API_KEY" ]; then
+            echo "::warning::NEON_DATABASE_URL_UNPOOLED or RESEND_API_KEY secret is not set; no reports sent."
+            exit 0
+          fi
+          python -m app.reports.send_progress_reports --days "${{ github.event.inputs.days || '7' }}"

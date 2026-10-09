@@ -1,8 +1,9 @@
 import uuid
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
@@ -10,7 +11,13 @@ from app.candidates.models import Application, StageHistory
 from app.candidates.schemas import ApplicationReceipt
 from app.companies.models import Company
 from app.core.email import send_email
-from app.core.storage import upload_cv, upload_supporting_document
+from app.core.storage import (
+    UploadKind,
+    confirm_upload,
+    create_signed_upload,
+    upload_cv,
+    upload_supporting_document,
+)
 from app.db.session import DbSession
 from app.jobs.models import Job, JobStatus, Stage
 
@@ -51,25 +58,62 @@ def read_public_job(job_id: uuid.UUID, db: DbSession):
     )
 
 
+class UploadRequest(BaseModel):
+    kind: UploadKind
+    filename: str = Field(min_length=1, max_length=255)
+    size: int = Field(ge=1)
+
+
+class SignedUpload(BaseModel):
+    """POST `fields` plus the file (as `file`) to `upload_url`, then send `public_id` with the application."""
+
+    upload_url: str
+    public_id: str
+    fields: dict[str, str]
+
+
+@router.post("/{job_id}/uploads", response_model=SignedUpload)
+def sign_upload(job_id: uuid.UUID, body: UploadRequest, db: DbSession):
+    """Let the candidate's browser upload a CV or document straight to file storage.
+
+    Used by the apply page so large files never pass through the API (hosted functions
+    limit request bodies to 4.5 MB). Only open jobs hand out upload signatures.
+    """
+    get_open_job(db, job_id)
+    return create_signed_upload(body.kind, body.filename, body.size)
+
+
 @router.post("/{job_id}/applications", response_model=ApplicationReceipt, status_code=201)
 def apply_to_job(
     job_id: uuid.UUID,
     full_name: Annotated[str, Form(min_length=1, max_length=100)],
     email: Annotated[EmailStr, Form()],
     phone: Annotated[str, Form(min_length=5, max_length=30)],
-    cv: UploadFile,
     db: DbSession,
     background_tasks: BackgroundTasks,
+    cv: UploadFile | None = None,
     cover_letter: Annotated[str | None, Form(max_length=5000)] = None,
     candidate_qualifications: Annotated[str, Form(max_length=5000)] = "",
     expected_salary: Annotated[int | None, Form(ge=0)] = None,
     supporting_documents: list[UploadFile] = File(default=[]),
+    cv_public_id: Annotated[str | None, Form(max_length=200)] = None,
+    document_public_ids: Annotated[list[str], Form()] = [],
+    document_names: Annotated[list[str], Form()] = [],
 ):
-    """Apply with a multipart form: full_name, email, phone, cv (file) and an optional cover_letter."""
+    """Apply with a multipart form: full_name, email, phone, a CV and an optional cover_letter.
+
+    Send the CV either as a file (`cv`) or, after a direct upload, as `cv_public_id`.
+    Supporting documents work the same way: files in `supporting_documents`, or
+    `document_public_ids` with the matching original `document_names`.
+    """
     job = get_open_job(db, job_id)
     email = email.lower()
 
-    if len(supporting_documents) > 6:
+    if (cv is None) == (cv_public_id is None):
+        raise HTTPException(422, "Attach your CV")
+    if len(document_public_ids) != len(document_names):
+        raise HTTPException(422, "Each uploaded document needs its file name")
+    if len(supporting_documents) + len(document_public_ids) > 6:
         raise HTTPException(422, "You can upload up to 6 supporting documents")
 
     already_applied = db.exec(
@@ -78,8 +122,12 @@ def apply_to_job(
     if already_applied is not None:
         raise HTTPException(409, "You have already applied to this job")
 
-    cv_url = upload_cv(cv)
+    cv_url = upload_cv(cv) if cv is not None else confirm_upload("cv", cv_public_id)
     uploaded_documents = [upload_supporting_document(document) for document in supporting_documents]
+    uploaded_documents += [
+        {"name": Path(name).name[:255] or "document", "url": confirm_upload("document", public_id)}
+        for public_id, name in zip(document_public_ids, document_names)
+    ]
 
     application = Application(
         job_id=job.id,

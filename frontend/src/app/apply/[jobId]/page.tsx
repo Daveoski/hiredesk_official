@@ -18,6 +18,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { applySchema, checkSupportingDocument, MAX_DOCUMENTS } from "@/lib/schemas";
+import { uploadDirect } from "@/lib/uploads";
 import type { PublicJob } from "@/lib/types";
 
 type ApplyValues = z.infer<typeof applySchema>;
@@ -31,6 +32,7 @@ export default function ApplyPage() {
   const [documentsError, setDocumentsError] = useState("");
   const [serverError, setServerError] = useState("");
   const [done, setDone] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "uploading" | "sending">("idle");
 
   const job = useQuery({
     queryKey: ["public-job", jobId],
@@ -54,20 +56,33 @@ export default function ApplyPage() {
       setDocumentsError(`Upload no more than ${MAX_DOCUMENTS} supporting documents`);
       return;
     }
-    const form = new FormData();
-    form.append("full_name", values.full_name);
-    form.append("email", values.email);
-    form.append("phone", values.phone);
-    form.append("candidate_qualifications", values.candidate_qualifications);
-    if (values.expected_salary) form.append("expected_salary", values.expected_salary);
-    if (values.cover_letter) form.append("cover_letter", values.cover_letter);
-    form.append("cv", cv);
-    documents.forEach((document) => form.append("supporting_documents", document));
     try {
+      // Files go straight to storage first; the application then only carries their ids.
+      setPhase("uploading");
+      const [cvId, ...documentIds] = await Promise.all([
+        uploadDirect(jobId, "cv", cv),
+        ...documents.map((document) => uploadDirect(jobId, "document", document)),
+      ]);
+
+      setPhase("sending");
+      const form = new FormData();
+      form.append("full_name", values.full_name);
+      form.append("email", values.email);
+      form.append("phone", values.phone);
+      form.append("candidate_qualifications", values.candidate_qualifications);
+      if (values.expected_salary) form.append("expected_salary", values.expected_salary);
+      if (values.cover_letter) form.append("cover_letter", values.cover_letter);
+      form.append("cv_public_id", cvId);
+      documentIds.forEach((id, index) => {
+        form.append("document_public_ids", id);
+        form.append("document_names", documents[index].name);
+      });
       await api.postForm(`/public/jobs/${jobId}/applications`, form);
       setDone(true);
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Could not send your application");
+    } finally {
+      setPhase("idle");
     }
   }
 
@@ -185,7 +200,11 @@ export default function ApplyPage() {
                           </p>
                         )}
                         <Button type="submit" size="lg" disabled={isSubmitting}>
-                          {isSubmitting ? "Sending..." : "Send application"}
+                          {phase === "uploading"
+                            ? `Uploading ${documents.length ? "files" : "your CV"}...`
+                            : isSubmitting
+                              ? "Sending..."
+                              : "Send application"}
                         </Button>
                       </form>
                     </CardContent>

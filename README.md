@@ -63,7 +63,8 @@ The repo deploys as two Vercel projects from the same GitHub repository. Every p
 
 - The database is Neon Postgres from the Vercel Marketplace (Storage tab), connected to the backend project. The backend converts Neon's `postgres://` URL to the psycopg driver and disables prepared statements for the pooled connection.
 - `.github/workflows/backend.yml` runs the backend tests on every push and pull request. On `main` it then runs `alembic upgrade head` against Neon using the repository secret `NEON_DATABASE_URL_UNPOOLED` (the `DATABASE_URL_UNPOOLED` value from the Neon integration).
-- Vercel Functions accept request bodies up to 4.5 MB, so larger CV or document uploads through the backend are rejected with HTTP 413.
+- Vercel Functions accept request bodies up to 4.5 MB, so the apply page uploads CVs and documents straight from the browser to Cloudinary: `POST /public/jobs/{id}/uploads` signs a one-file upload, and the application then sends `cv_public_id` / `document_public_ids`, which the backend checks with Cloudinary (real size and type) before accepting.
+- `.github/workflows/progress-reports.yml` emails admins their progress report every Monday at 08:00 UTC, and can be run by hand from the Actions tab. It uses the secrets `NEON_DATABASE_URL_UNPOOLED` and `RESEND_API_KEY`, plus optional `EMAIL_FROM` and `FRONTEND_BASE_URL`.
 
 ## Integrations
 
