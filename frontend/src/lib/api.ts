@@ -26,7 +26,8 @@ function errorMessage(body: unknown, fallback: string): string {
 async function request<T>(path: string, init: RequestInit = {}, auth = true): Promise<T> {
   const headers = new Headers(init.headers);
   const token = useAuthStore.getState().token;
-  if (auth && token) headers.set("Authorization", `Bearer ${token}`);
+  const sendsToken = auth && !!token;
+  if (sendsToken) headers.set("Authorization", `Bearer ${token}`);
   // Do not set Content-Type for FormData: the browser adds the multipart boundary itself.
   if (typeof init.body === "string") headers.set("Content-Type", "application/json");
 
@@ -37,7 +38,9 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
     throw new ApiError("Cannot reach the server. Check that the backend is running.", 0);
   }
 
-  if (response.status === 401 && auth) {
+  // Only an expired session sends the user back to /login. A 401 from a sign-in attempt
+  // (for example a rejected Google token) stays on the page so its message can be shown.
+  if (response.status === 401 && sendsToken) {
     useAuthStore.getState().logout();
     if (typeof window !== "undefined") window.location.href = "/login";
   }

@@ -10,6 +10,7 @@ from app.auth.dependencies import CurrentUser, HiringManagerUser, InterviewerUse
 from app.auth.permissions import get_visible_application, get_visible_interview, visible_interviews
 from app.candidates.models import Application
 from app.core.email import send_email
+from app.core.notifications import label, notify_company_admins
 from app.db.session import DbSession
 from app.interviews.models import Interview, InterviewStatus
 from app.interviews.schemas import InterviewCreate, InterviewRead, InterviewSchedule
@@ -61,6 +62,17 @@ def schedule_interview(
             "Please sign in to choose a date and meeting format.\n"
         ),
     )
+    notify_company_admins(
+        db,
+        background_tasks,
+        job.company_id,
+        subject=f"Interviewer assigned: {application.full_name} for {job.title}",
+        text=(
+            f"{manager.full_name} asked {interviewer.full_name} to interview "
+            f"{application.full_name} for {job.title}.\n"
+            "The interviewer will now choose the date and meeting format.\n"
+        ),
+    )
     return interview
 
 
@@ -104,6 +116,17 @@ def schedule_assigned_interview(
             f"{'Join here' if body.meeting_type.value == 'virtual' else 'Location'}: {meeting_details}\n"
         ),
     )
+    notify_company_admins(
+        db,
+        background_tasks,
+        job.company_id,
+        subject=f"Interview scheduled: {application.full_name} for {job.title}",
+        text=(
+            f"{interviewer.full_name} scheduled the interview with {application.full_name} for {job.title}.\n"
+            f"When: {body.starts_at.isoformat()} ({body.duration_minutes} minutes)\n"
+            f"Format: {label(body.meeting_type.value)}\n"
+        ),
+    )
     return interview
 
 
@@ -122,7 +145,12 @@ def read_interview(interview_id: uuid.UUID, user: CurrentUser, db: DbSession):
 
 
 @router.post("/{interview_id}/cancel", response_model=InterviewRead)
-def cancel_interview(interview_id: uuid.UUID, manager: HiringManagerUser, db: DbSession):
+def cancel_interview(
+    interview_id: uuid.UUID,
+    manager: HiringManagerUser,
+    db: DbSession,
+    background_tasks: BackgroundTasks,
+):
     """Cancelling frees the interviewer's time slot."""
     interview = get_visible_interview(db, manager, interview_id)
     if interview.status not in (InterviewStatus.assigned, InterviewStatus.scheduled):
@@ -130,4 +158,15 @@ def cancel_interview(interview_id: uuid.UUID, manager: HiringManagerUser, db: Db
     interview.status = InterviewStatus.cancelled
     db.add(interview)
     db.commit()
+
+    application = db.get(Application, interview.application_id)
+    job = db.get(Job, application.job_id)
+    interviewer = db.get(User, interview.interviewer_id)
+    notify_company_admins(
+        db,
+        background_tasks,
+        job.company_id,
+        subject=f"Interview cancelled: {application.full_name} for {job.title}",
+        text=f"{manager.full_name} cancelled {interviewer.full_name}'s interview with {application.full_name}.\n",
+    )
     return interview

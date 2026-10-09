@@ -57,6 +57,7 @@ export default function RegisterPage() {
       const token = await api.post<{ access_token: string }>("/auth/google", {
         id_token: idToken,
         company_name: getValues("company_name")?.trim() || null,
+        create_company: true,
       });
       useAuthStore.setState({ token: token.access_token });
       const user = await api.get<User>("/auth/me");

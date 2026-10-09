@@ -56,6 +56,17 @@ The frontend has `bun run typecheck` and `bun run build` checks. Test files are 
 
 - Google sign-in uses a public web client ID in the frontend and matching verification settings in the backend.
 - Cloudinary stores candidate CVs and supporting documents.
-- Resend sends transactional email when configured.
+- Resend sends transactional email when configured. Company admins are emailed as hiring progresses (stage moves, hires and rejections, interviews, scorecards, new teammates).
+
+### Scheduled progress reports
+
+Admins can view the progress report on their dashboard and email it to themselves. To send every company's admins the report automatically, schedule this command from `backend/`:
+
+```bash
+python -m app.reports.send_progress_reports            # the last 7 days
+python -m app.reports.send_progress_reports --days 1   # a daily report
+```
+
+For example with cron (`0 8 * * 1` for Mondays at 8:00) or Windows Task Scheduler (`schtasks /Create /SC WEEKLY /D MON /ST 08:00 ...`).
 
 Set production credentials in the deployment platform's secret/environment configuration. Do not commit `.env` files, API keys, provider secrets, or JWT signing keys.

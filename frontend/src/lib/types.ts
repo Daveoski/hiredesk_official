@@ -13,6 +13,7 @@ export interface User {
   email: string;
   full_name: string;
   role: Role;
+  password_login_enabled: boolean;
 }
 
 export interface UserInvitation {
@@ -109,6 +110,73 @@ export interface Scorecard {
   submitted_at: string | null;
   ratings: Rating[];
   average_score: number | null;
+}
+
+// The company admin's progress report (GET /reports/progress).
+export interface ProgressReport {
+  company_name: string;
+  generated_at: string;
+  period_days: number;
+  period_start: string;
+  totals: {
+    open_jobs: number;
+    active_candidates: number;
+    new_applications: number;
+    hired: number;
+    rejected: number;
+    interviews_to_schedule: number;
+    upcoming_interviews: number;
+    scorecards_due: number;
+  };
+  pipeline: Record<Stage, number>;
+  interviews_by_status: Record<InterviewStatus, number>;
+  jobs: {
+    id: string;
+    title: string;
+    status: JobStatus;
+    hiring_manager_name: string | null;
+    applicants: number;
+    pipeline: Record<Stage, number>;
+  }[];
+  team: {
+    id: string;
+    full_name: string;
+    role: Role;
+    open_jobs: number;
+    active_candidates: number;
+    interviews_to_schedule: number;
+    upcoming_interviews: number;
+    scorecards_due: number;
+    scorecards_submitted: number;
+  }[];
+  recent_activity: {
+    application_id: string;
+    candidate_name: string;
+    job_title: string;
+    from_stage: Stage | null;
+    to_stage: Stage;
+    changed_by_name: string | null;
+    changed_at: string;
+  }[];
+  results: {
+    application_id: string;
+    candidate_name: string;
+    job_title: string;
+    outcome: Stage;
+    decided_by_name: string | null;
+    decided_at: string;
+    match_score: number | null;
+    interviewer_recommendation: Recommendation | null;
+  }[];
+  scorecards: {
+    application_id: string;
+    candidate_name: string;
+    job_title: string;
+    interviewer_name: string;
+    recommendation: Recommendation | null;
+    average_score: number | null;
+    submitted_at: string;
+  }[];
 }
 
 export interface ApplicationScorecards {

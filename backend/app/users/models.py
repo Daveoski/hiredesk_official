@@ -22,6 +22,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     full_name: str
     hashed_password: str
+    password_login_enabled: bool = Field(default=True, nullable=False)
     role: Role = Field(sa_type=enum_column(Role))
 
 

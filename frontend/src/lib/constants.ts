@@ -38,11 +38,11 @@ export const ROLE_LABEL: Record<Role, string> = {
   interviewer: "Interviewer",
 };
 
-// Where each role lands after signing in.
+// Where each role lands after signing in: everyone starts on their own dashboard.
 export const HOME: Record<Role, string> = {
-  company_admin: "/team",
-  hiring_manager: "/jobs",
-  interviewer: "/interviews",
+  company_admin: "/overview",
+  hiring_manager: "/overview",
+  interviewer: "/overview",
 };
 
 export const RECOMMENDATION_LABEL: Record<Recommendation, string> = {

@@ -55,6 +55,27 @@ def fake_cloudinary(monkeypatch):
     )
 
 
+EMAIL_SENDERS = [
+    "app.auth.router",
+    "app.candidates.router",
+    "app.candidates.public_router",
+    "app.core.notifications",
+    "app.interviews.router",
+    "app.reports.router",
+    "app.reports.send_progress_reports",
+    "app.users.router",
+]
+
+
+@pytest.fixture
+def outbox(monkeypatch):
+    """Every email the app sends during the test, as dicts with to, subject and text."""
+    sent = []
+    for module in EMAIL_SENDERS:
+        monkeypatch.setattr(f"{module}.send_email", lambda **message: sent.append(message))
+    return sent
+
+
 @pytest.fixture
 def client():
     return TestClient(app)

@@ -37,3 +37,4 @@ class UserRead(BaseModel):
     email: str
     full_name: str
     role: Role
+    password_login_enabled: bool

@@ -17,9 +17,9 @@ from app.candidates.schemas import (
 )
 from app.candidates.service import change_stage
 from app.core.email import send_email
+from app.core.notifications import label, notify_company_admins
 from app.db.session import DbSession
 from app.jobs.models import Stage
-from app.users.models import Role, User
 
 router = APIRouter(prefix="/applications", tags=["Candidates"])
 
@@ -35,20 +35,6 @@ def notify_candidate(background_tasks: BackgroundTasks, application: Application
             "The hiring team will contact you with further updates.\n"
         ),
     )
-
-
-def notify_company_admins(
-    db: DbSession,
-    background_tasks: BackgroundTasks,
-    company_id: uuid.UUID,
-    subject: str,
-    text: str,
-) -> None:
-    admins = db.exec(
-        select(User).where(User.company_id == company_id, User.role == Role.company_admin)
-    ).all()
-    for admin in admins:
-        background_tasks.add_task(send_email, to=admin.email, subject=subject, text=text)
 
 
 def assessment_summary(application: Application, job_title: str) -> str:
@@ -116,9 +102,21 @@ def move_application(
     background_tasks: BackgroundTasks,
 ):
     """Move a candidate forward: applied -> screen -> interview -> offer."""
-    _, job = get_visible_application(db, manager, application_id)
+    previous, job = get_visible_application(db, manager, application_id)
+    from_stage = previous.stage
     application = change_stage(db, application_id, body.stage, manager)
     notify_candidate(background_tasks, application, job.title, body.stage)
+    notify_company_admins(
+        db,
+        background_tasks,
+        job.company_id,
+        subject=f"Candidate moved to {label(body.stage.value)}: {application.full_name} for {job.title}",
+        text=(
+            f"{manager.full_name} moved {application.full_name} from {label(from_stage.value)} "
+            f"to {label(body.stage.value)}.\n\n"
+            f"{assessment_summary(application, job.title)}"
+        ),
+    )
     return ApplicationRead.from_rows(application, job)
 
 
@@ -168,7 +166,18 @@ def decide_application(
             job.company_id,
             subject=f"Successful applicant hired: {application.full_name} for {job.title}",
             text=(
-                "A successful applicant has been hired.\n\n"
+                f"A successful applicant has been hired by {manager.full_name}.\n\n"
+                f"{assessment_summary(application, job.title)}"
+            ),
+        )
+    else:
+        notify_company_admins(
+            db,
+            background_tasks,
+            job.company_id,
+            subject=f"Candidate rejected: {application.full_name} for {job.title}",
+            text=(
+                f"{manager.full_name} rejected {application.full_name}.\n\n"
                 f"{assessment_summary(application, job.title)}"
             ),
         )

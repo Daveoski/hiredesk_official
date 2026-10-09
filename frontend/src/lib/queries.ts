@@ -7,6 +7,7 @@ import type {
   Interview,
   Job,
   JobStatus,
+  ProgressReport,
   Role,
   Scorecard,
   Stage,
@@ -38,10 +39,12 @@ export const useApplications = (
   jobId?: string,
   sortBy = "created_at",
   sortOrder: "asc" | "desc" = "desc",
+  enabled = true,
 ) =>
   useQuery({
     queryKey: ["applications", jobId ?? "all", sortBy, sortOrder],
     queryFn: () => api.get<Application[]>(`/applications?limit=200&sort_by=${sortBy}&sort_order=${sortOrder}${jobId ? `&job_id=${jobId}` : ""}`),
+    enabled,
   });
 
 export const useApplication = (id: string) =>
@@ -54,10 +57,11 @@ export const useHistory = (id: string, enabled: boolean) =>
     enabled,
   });
 
-export const useInterviews = (applicationId?: string) =>
+export const useInterviews = (applicationId?: string, enabled = true) =>
   useQuery({
     queryKey: ["interviews", applicationId ?? "all"],
     queryFn: () => api.get<Interview[]>(applicationId ? `/interviews?application_id=${applicationId}` : "/interviews"),
+    enabled,
   });
 
 export const useScorecards = (applicationId: string) =>
@@ -66,7 +70,27 @@ export const useScorecards = (applicationId: string) =>
     queryFn: () => api.get<ApplicationScorecards>(`/applications/${applicationId}/scorecards`),
   });
 
+// Company admins only.
+export const useProgressReport = (days: number, enabled = true) =>
+  useQuery({
+    queryKey: ["progress-report", days],
+    queryFn: () => api.get<ProgressReport>(`/reports/progress?days=${days}`),
+    enabled,
+  });
+
 // ---- Changing data ----
+
+export function useEmailProgressReport() {
+  return useMutation({
+    mutationFn: (days: number) => api.post<{ sent_to: string[] }>(`/reports/progress/email?days=${days}`),
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (body: { current_password?: string; password: string }) => api.put<User>("/auth/password", body),
+  });
+}
 
 // Any change to a candidate can affect many screens, so these refresh the related lists.
 function useRefresh() {

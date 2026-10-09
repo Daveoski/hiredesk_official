@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { AuthLayout } from "@/components/layout/auth-layout";
 import { Field } from "@/components/shared/field";
+import { GoogleSignInButton } from "@/components/shared/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
@@ -31,6 +32,7 @@ function AcceptInviteForm() {
   const token = useSearchParams().get("token");
   const setSession = useAuthStore((state) => state.setSession);
   const [error, setError] = useState("");
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -58,8 +60,39 @@ function AcceptInviteForm() {
     }
   }
 
+  async function handleGoogleSignIn(idToken: string) {
+    setError("");
+    setGoogleSubmitting(true);
+    try {
+      // The backend checks that the Google email is the one the invitation was sent to.
+      const session = await api.post<{ access_token: string }>("/auth/google", { id_token: idToken, invite_token: token });
+      useAuthStore.setState({ token: session.access_token });
+      const user = await api.get<User>("/auth/me");
+      setSession(session.access_token, user);
+      router.replace(HOME[user.role]);
+    } catch (err) {
+      useAuthStore.getState().logout();
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  }
+
   return (
-    <AuthLayout title="Join your HireDesk team" subtitle="Choose a password to activate your invited account.">
+    <AuthLayout
+      title="Join your HireDesk team"
+      subtitle="Continue with the Google account your invitation was sent to, or choose a password."
+    >
+      {token && (
+        <>
+          <GoogleSignInButton onCredential={handleGoogleSignIn} disabled={googleSubmitting} />
+          <div className="mb-4 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />
+            or choose a password
+            <span className="h-px flex-1 bg-border" />
+          </div>
+        </>
+      )}
       {token ? (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
           <Field label="Password" htmlFor="password" error={errors.password?.message} hint="At least 8 characters">

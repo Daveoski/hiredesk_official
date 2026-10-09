@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, CalendarClock, LayoutDashboard, LogOut, Menu, Users, UserCog } from "lucide-react";
+import { Briefcase, CalendarClock, KeyRound, LayoutDashboard, LogOut, Menu, Users, UserCog } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import { isManager, useAuthStore } from "@/stores/auth-store";
 
 function useNavItems() {
   const user = useAuthStore((state) => state.user);
-  const items = [{ href: "/overview", label: "Overview", icon: LayoutDashboard }];
+  const items = [{ href: "/overview", label: "Dashboard", icon: LayoutDashboard }];
   if (user?.role === "hiring_manager") {
     items.push({ href: "/jobs", label: "Jobs", icon: Briefcase });
     items.push({ href: "/candidates", label: "Candidates", icon: Users });
@@ -26,6 +26,7 @@ function useNavItems() {
     items.push({ href: "/interviews", label: "Interviews", icon: CalendarClock });
   }
   if (user?.role === "company_admin") items.push({ href: "/team", label: "Team", icon: UserCog });
+  items.push({ href: "/account", label: "Account", icon: KeyRound });
   return items;
 }
 

@@ -10,6 +10,7 @@ from app.core.config import get_settings
 from app.db.session import DbSession
 from app.interviews.router import router as interviews_router
 from app.jobs.router import router as jobs_router
+from app.reports.router import router as reports_router
 from app.scorecards.router import router as scorecards_router
 from app.users.router import router as users_router
 
@@ -35,6 +36,7 @@ app.include_router(public_router)
 app.include_router(candidates_router)
 app.include_router(interviews_router)
 app.include_router(scorecards_router)
+app.include_router(reports_router)
 
 
 @app.get("/health", tags=["Health"])

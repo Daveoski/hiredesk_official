@@ -151,7 +151,7 @@ def test_hiring_decision_hires_a_candidate_from_the_offer_stage(world):
     assert again.status_code == 409
 
 
-def test_hr_assessment_and_successful_hire_email_company_admin(world, monkeypatch):
+def test_hr_assessment_and_successful_hire_email_company_admin(world, outbox):
     application_id = world.apply()
     for stage in ["screen", "interview", "offer"]:
         response = world.client.patch(
@@ -159,8 +159,10 @@ def test_hr_assessment_and_successful_hire_email_company_admin(world, monkeypatc
         )
         assert response.status_code == 200
 
-    sent = []
-    monkeypatch.setattr("app.candidates.router.send_email", lambda **message: sent.append(message))
+    outbox.clear()
+
+    def admin_emails():
+        return [message for message in outbox if message["to"] == "admin@acme.com"]
 
     assessment = world.client.patch(
         f"/applications/{application_id}/assessment",
@@ -168,7 +170,7 @@ def test_hr_assessment_and_successful_hire_email_company_admin(world, monkeypatc
         json={"match_score": 91, "manager_notes": "Strong final assessment"},
     )
     assert assessment.status_code == 200
-    assert sent[0]["to"] == "admin@acme.com"
+    sent = admin_emails()
     assert "91/100" in sent[0]["text"]
     assert "Strong final assessment" in sent[0]["text"]
 
@@ -176,7 +178,7 @@ def test_hr_assessment_and_successful_hire_email_company_admin(world, monkeypatc
         f"/applications/{application_id}/decision", headers=world.manager, json={"decision": "hired"}
     )
     assert decision.status_code == 200
-    assert sent[1]["to"] == "admin@acme.com"
+    sent = admin_emails()
     assert "successful applicant has been hired" in sent[1]["text"]
     assert "91/100" in sent[1]["text"]
     assert "Strong final assessment" in sent[1]["text"]

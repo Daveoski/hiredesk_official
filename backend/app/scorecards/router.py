@@ -1,14 +1,16 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlmodel import Session, col, select
 
 from app.auth.dependencies import CurrentUser, InterviewerUser
 from app.auth.permissions import get_visible_application
 from app.candidates.models import Application
+from app.core.notifications import label, notify_company_admins
 from app.db.common import utcnow
 from app.db.session import DbSession
 from app.interviews.models import Interview, InterviewStatus
+from app.jobs.models import Job
 from app.scorecards.models import Recommendation, Scorecard, ScorecardRating, ScorecardStatus
 from app.scorecards.schemas import ApplicationScorecards, ScorecardRead, ScorecardSubmit
 from app.users.models import Role, User
@@ -29,7 +31,13 @@ def build_scorecard_read(scorecard: Scorecard, interview: Interview, ratings: li
 
 
 @router.put("/interviews/{interview_id}/scorecard", response_model=ScorecardRead)
-def submit_scorecard(interview_id: uuid.UUID, body: ScorecardSubmit, interviewer: InterviewerUser, db: DbSession):
+def submit_scorecard(
+    interview_id: uuid.UUID,
+    body: ScorecardSubmit,
+    interviewer: InterviewerUser,
+    db: DbSession,
+    background_tasks: BackgroundTasks,
+):
     """An interviewer submits the scorecard of their own interview. It cannot be changed afterwards."""
     # The rows are locked, so a double click cannot submit the scorecard twice.
     row = db.exec(
@@ -86,7 +94,24 @@ def submit_scorecard(interview_id: uuid.UUID, body: ScorecardSubmit, interviewer
         application.interviewer_recommendation = Recommendation.maybe.value
     db.add(application)
     db.commit()
-    return build_scorecard_read(scorecard, interview, ratings)
+
+    result = build_scorecard_read(scorecard, interview, ratings)
+    job = db.get(Job, application.job_id)
+    rating_lines = "\n".join(f"- {item.criterion}: {item.rating}/5" for item in ratings)
+    notify_company_admins(
+        db,
+        background_tasks,
+        job.company_id,
+        subject=f"Scorecard submitted: {application.full_name} for {job.title}",
+        text=(
+            f"{interviewer.full_name} submitted their interview scorecard for {application.full_name} ({job.title}).\n\n"
+            f"Recommendation: {label(body.recommendation.value) if body.recommendation else 'none given'}\n"
+            f"Average rating: {result.average_score}/5\n"
+            f"{rating_lines}\n\n"
+            f"Overall interviewer recommendation so far: {label(application.interviewer_recommendation or 'none')}\n"
+        ),
+    )
+    return result
 
 
 def hide_scorecards_from_interviewer(rows: list[tuple[Scorecard, Interview]], interviewer: User):

@@ -20,6 +20,16 @@ export const acceptInvitationSchema = z.object({
   path: ["confirm_password"],
 });
 
+// current_password is only required when the account already has one (see the account page).
+export const changePasswordSchema = z.object({
+  current_password: z.string().max(128).optional(),
+  password: z.string().min(8, "Use at least 8 characters").max(128),
+  confirm_password: z.string(),
+}).refine((values) => values.password === values.confirm_password, {
+  message: "Passwords do not match",
+  path: ["confirm_password"],
+});
+
 export const jobSchema = z.object({
   title: z.string().min(1, "Enter a job title").max(200),
   description: z.string().min(1, "Describe the role").max(10000),

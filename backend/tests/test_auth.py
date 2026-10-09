@@ -6,7 +6,7 @@ def test_register_login_and_read_profile(client):
     assert response.status_code == 201
     assert response.json()["role"] == "company_admin"
     assert response.json()["email"] == "ada@acme.com"  # emails are stored in lowercase
-    assert "password" not in response.text
+    assert "hashed_password" not in response.text
 
     login = client.post("/auth/login", data={"username": "ADA@acme.com", "password": "password123"})
     assert login.status_code == 200
@@ -47,10 +47,22 @@ def test_google_auth_can_sign_in_or_register(client, monkeypatch):
 
     created = client.post(
         "/auth/google",
-        json={"id_token": "verified-token", "company_name": "Acme"},
+        json={"id_token": "verified-token", "company_name": "Acme", "create_company": True},
     )
     assert created.status_code == 200
     assert created.json()["token_type"] == "bearer"
+    headers = {"Authorization": f"Bearer {created.json()['access_token']}"}
+
+    profile = client.get("/auth/me", headers=headers)
+    assert profile.status_code == 200, profile.text
+    assert profile.json()["password_login_enabled"] is False
+
+    linked = client.put("/auth/password", headers=headers, json={"password": "linkedpass123"})
+    assert linked.status_code == 200
+    assert linked.json()["password_login_enabled"] is True
+
+    email_login = client.post("/auth/login", data={"username": "google.user@acme.com", "password": "linkedpass123"})
+    assert email_login.status_code == 200
 
     existing = client.post(
         "/auth/google",
@@ -61,6 +73,68 @@ def test_google_auth_can_sign_in_or_register(client, monkeypatch):
     me = client.get("/auth/me", headers={"Authorization": f"Bearer {existing.json()['access_token']}"})
     assert me.status_code == 200
     assert me.json()["email"] == "google.user@acme.com"
+
+
+def fake_google(monkeypatch, email: str):
+    """Enable Google sign-in and make every ID token verify as this email."""
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "google_auth_enabled", True)
+    monkeypatch.setattr(settings, "google_client_id", "test-client-id")
+    monkeypatch.setattr(
+        "app.auth.router.google_id_token.verify_oauth2_token",
+        lambda *_args, **_kwargs: {"email": email, "email_verified": True, "name": "Someone"},
+    )
+
+
+def test_google_sign_in_from_login_page_does_not_create_a_company(client, monkeypatch):
+    fake_google(monkeypatch, "stranger@acme.com")
+    response = client.post("/auth/google", json={"id_token": "verified-token"})
+    assert response.status_code == 404
+    assert client.post("/auth/login", data={"username": "stranger@acme.com", "password": "x"}).status_code == 401
+
+
+def test_existing_admin_and_hiring_manager_sign_in_with_google(world, monkeypatch):
+    for email, role in [("admin@acme.com", "company_admin"), ("manager@acme.com", "hiring_manager")]:
+        fake_google(monkeypatch, email)
+        response = world.client.post("/auth/google", json={"id_token": "verified-token"})
+        assert response.status_code == 200, response.text
+        me = world.client.get("/auth/me", headers={"Authorization": f"Bearer {response.json()['access_token']}"})
+        assert me.json()["role"] == role
+        # Signing in with Google never disables an existing password.
+        assert me.json()["password_login_enabled"] is True
+
+
+def test_invited_hiring_manager_joins_the_company_with_google(world, monkeypatch):
+    invite = world.client.post(
+        "/users",
+        headers=world.admin,
+        json={"email": "hm@acme.com", "full_name": "Hana Manager", "role": "hiring_manager"},
+    )
+    assert invite.status_code == 201
+    invite_token = invite.json()["invite_url"].split("token=", 1)[1]
+
+    fake_google(monkeypatch, "someone.else@gmail.com")
+    wrong_account = world.client.post("/auth/google", json={"id_token": "t", "invite_token": invite_token})
+    assert wrong_account.status_code == 403
+    assert "hm@acme.com" in wrong_account.json()["detail"]
+
+    fake_google(monkeypatch, "hm@acme.com")
+    response = world.client.post("/auth/google", json={"id_token": "t", "invite_token": invite_token})
+    assert response.status_code == 200, response.text
+    headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
+    me = world.client.get("/auth/me", headers=headers).json()
+    admin = world.client.get("/auth/me", headers=world.admin).json()
+    assert me["role"] == "hiring_manager"
+    assert me["full_name"] == "Hana Manager"
+    assert me["company_id"] == admin["company_id"]
+    assert world.client.get("/jobs", headers=headers).status_code == 200
+
+    # The invitation is used up, and the next Google sign-in finds the same user.
+    assert world.client.post("/auth/accept-invite", json={"token": invite_token, "password": "password123"}).status_code == 410
+    again = world.client.post("/auth/google", json={"id_token": "t"})
+    assert world.client.get("/auth/me", headers={"Authorization": f"Bearer {again.json()['access_token']}"}).json()["id"] == me["id"]
 
 
 def test_google_auth_requires_configuration(client, monkeypatch):

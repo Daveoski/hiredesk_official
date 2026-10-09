@@ -65,7 +65,10 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Log in to see your hiring pipeline.">
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Log in to see your hiring pipeline. Admins and hiring managers can use their work Google account."
+    >
       <div className="mb-4 flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
         <span className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
           1
