@@ -76,7 +76,7 @@ function AddMemberDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add team member</DialogTitle>
-          <DialogDescription>They will receive a one-time link and set their own password.</DialogDescription>
+          <DialogDescription>We email them a one-time link to join. They can set a password or continue with Google.</DialogDescription>
         </DialogHeader>
         {open && <AddMemberForm onDone={() => onOpenChange(false)} />}
       </DialogContent>
@@ -87,6 +87,7 @@ function AddMemberDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
 function AddMemberForm({ onDone }: { onDone: () => void }) {
   const create = useCreateUser();
   const [inviteUrl, setInviteUrl] = useState("");
+  const [sent, setSent] = useState<{ email: string; ok: boolean } | null>(null);
   const {
     register,
     handleSubmit,
@@ -97,7 +98,9 @@ function AddMemberForm({ onDone }: { onDone: () => void }) {
   function onSubmit(values: UserValues) {
     create.mutate(values, {
       onSuccess: (invitation) => {
-        toast.success(`Invitation sent to ${values.email}`);
+        if (invitation.email_sent) toast.success(`Invitation emailed to ${values.email}`);
+        else toast.warning("Invitation created, but the email could not be sent. Share the link below.");
+        setSent({ email: values.email, ok: invitation.email_sent });
         setInviteUrl(invitation.invite_url);
       },
       onError: (error) => setError("email", { message: error.message }),
@@ -118,6 +121,20 @@ function AddMemberForm({ onDone }: { onDone: () => void }) {
           <option value="hiring_manager">Hiring manager</option>
         </Select>
       </Field>
+      {sent && (
+        <p
+          role="status"
+          className={
+            sent.ok
+              ? "rounded-md bg-status-good-wash px-3 py-2 text-sm text-status-good"
+              : "rounded-md bg-status-warning-wash px-3 py-2 text-sm text-status-warning"
+          }
+        >
+          {sent.ok
+            ? `We emailed ${sent.email} a link to join. You can also share the link below.`
+            : `We couldn't email ${sent.email}. Copy the link below and send it to them yourself.`}
+        </p>
+      )}
       {inviteUrl && (
         <Field label="One-time invitation link" htmlFor="invite_url" hint="This link expires in 7 days and can only be used once.">
           <div className="flex gap-2">

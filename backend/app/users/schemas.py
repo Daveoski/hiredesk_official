@@ -22,6 +22,8 @@ class UserInvitationRead(BaseModel):
     role: Role
     expires_at: datetime
     invite_url: str
+    # False when the invitation email could not be sent; the admin then shares invite_url another way.
+    email_sent: bool
 
 
 class AcceptInvitation(BaseModel):

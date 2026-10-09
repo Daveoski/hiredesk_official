@@ -32,6 +32,14 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     email_from: str = "HireDesk <onboarding@resend.dev>"
 
+    # Optional SMTP sending, used instead of Resend when SMTP_HOST is set.
+    # Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_USERNAME=you@gmail.com,
+    # SMTP_PASSWORD=<16-character app password>.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+
     @field_validator("database_url")
     @classmethod
     def use_psycopg_driver(cls, url: str) -> str:

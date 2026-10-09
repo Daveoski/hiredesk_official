@@ -22,6 +22,7 @@ export interface UserInvitation {
   role: Role;
   expires_at: string;
   invite_url: string;
+  email_sent: boolean;
 }
 
 export interface Company {

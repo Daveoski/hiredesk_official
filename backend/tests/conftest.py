@@ -72,7 +72,7 @@ def outbox(monkeypatch):
     """Every email the app sends during the test, as dicts with to, subject and text."""
     sent = []
     for module in EMAIL_SENDERS:
-        monkeypatch.setattr(f"{module}.send_email", lambda **message: sent.append(message))
+        monkeypatch.setattr(f"{module}.send_email", lambda **message: sent.append(message) or True)
     return sent
 
 
