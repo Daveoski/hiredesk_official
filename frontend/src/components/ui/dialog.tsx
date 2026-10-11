@@ -9,6 +9,12 @@ export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
+// The overlay is also the scroll container and centres the dialog with a grid.
+// Centring with translate(-50%, -50%) relies on the CSS `translate` property, which older mobile
+// browsers ignore: the dialog then starts at the middle of the screen, half off it. A grid works
+// everywhere, and a long form scrolls inside the overlay on small phones.
+// The backdrop uses a plain rgba colour: opacity modifiers like bg-foreground/40 need color-mix(),
+// which older browsers also lack, and they fall back to a solid colour.
 export function DialogContent({
   className,
   children,
@@ -16,19 +22,20 @@ export function DialogContent({
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-      <DialogPrimitive.Content
-        className={cn(
-          "fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border bg-card p-6 shadow-xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted" aria-label="Close">
-          <X className="size-4" />
-        </DialogPrimitive.Close>
-      </DialogPrimitive.Content>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[rgba(20,22,43,0.45)] p-4 data-[state=open]:animate-in data-[state=open]:fade-in-0">
+        <DialogPrimitive.Content
+          className={cn(
+            "relative w-full max-w-lg rounded-lg border bg-card p-5 shadow-xl sm:p-6 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted" aria-label="Close">
+            <X className="size-4" />
+          </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Overlay>
     </DialogPrimitive.Portal>
   );
 }

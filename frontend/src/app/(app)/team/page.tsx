@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Copy, Send, UserPlus, X } from "lucide-react";
+import { Copy, Send, Share2, UserPlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,7 @@ import { Input, Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateUser, usePendingInvitations, useResendInvitation, useRevokeInvitation, useUsers } from "@/lib/queries";
 import { userSchema } from "@/lib/schemas";
+import { canShare, copyText, shareLink } from "@/lib/share";
 import { ROLE_LABEL } from "@/lib/stages";
 import type { PendingInvitation } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
@@ -132,20 +133,7 @@ function PendingInvitations() {
                     </Button>
                   </div>
                 </div>
-                {freshLink?.id === invitation.id && (
-                  <div className="flex gap-2">
-                    <Input readOnly value={freshLink.url} aria-label="New invitation link" />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label="Copy invitation link"
-                      onClick={() => navigator.clipboard.writeText(freshLink.url).then(() => toast.success("Invitation link copied"))}
-                    >
-                      <Copy />
-                    </Button>
-                  </div>
-                )}
+                {freshLink?.id === invitation.id && <InviteLinkBox url={freshLink.url} name={invitation.full_name} />}
               </li>
             );
           })}
@@ -191,16 +179,63 @@ function AddMemberDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   );
 }
 
+// The invite link with Copy, and Share (the phone's share sheet: WhatsApp, SMS, Gmail...) where available.
+function InviteLinkBox({ url, name }: { url: string; name: string }) {
+  const [shareable, setShareable] = useState(false);
+  // navigator only exists in the browser, so check after mounting.
+  useEffect(() => setShareable(canShare()), []);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <Input readOnly value={url} aria-label="Invitation link" onFocus={(event) => event.currentTarget.select()} />
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label="Copy invitation link"
+          onClick={async () =>
+            (await copyText(url)) ? toast.success("Invitation link copied") : toast.error("Couldn't copy. Press and hold the link to copy it.")
+          }
+        >
+          <Copy />
+        </Button>
+      </div>
+      {shareable && (
+        <Button
+          type="button"
+          variant="soft"
+          className="self-start"
+          onClick={() => shareLink("Join my team on HireDesk", `Hi ${name}, here is your link to join our team on HireDesk:`, url)}
+        >
+          <Share2 /> Share link (WhatsApp, SMS, email…)
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function AddMemberForm({ onDone }: { onDone: () => void }) {
   const create = useCreateUser();
   const [inviteUrl, setInviteUrl] = useState("");
+  const [invitedName, setInvitedName] = useState("");
   const [sent, setSent] = useState<{ email: string; ok: boolean } | null>(null);
   const {
     register,
     handleSubmit,
+    reset,
     setError,
     formState: { errors },
   } = useForm<UserValues>({ resolver: zodResolver(userSchema), defaultValues: { role: "interviewer" } });
+  // Once invited, the form is locked so the same person can't be invited twice by accident.
+  const invited = inviteUrl !== "";
+
+  function inviteAnother() {
+    reset({ full_name: "", email: "", role: "interviewer" });
+    setInviteUrl("");
+    setInvitedName("");
+    setSent(null);
+  }
 
   function onSubmit(values: UserValues) {
     create.mutate(values, {
@@ -208,6 +243,7 @@ function AddMemberForm({ onDone }: { onDone: () => void }) {
         if (invitation.email_sent) toast.success(`Invitation emailed to ${values.email}`);
         else toast.warning("Invitation created, but the email could not be sent. Share the link below.");
         setSent({ email: values.email, ok: invitation.email_sent });
+        setInvitedName(values.full_name);
         setInviteUrl(invitation.invite_url);
       },
       onError: (error) => setError("email", { message: error.message }),
@@ -217,13 +253,13 @@ function AddMemberForm({ onDone }: { onDone: () => void }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <Field label="Full name" htmlFor="full_name" error={errors.full_name?.message}>
-        <Input id="full_name" {...register("full_name")} />
+        <Input id="full_name" disabled={invited} {...register("full_name")} />
       </Field>
       <Field label="Email" htmlFor="email" error={errors.email?.message}>
-        <Input id="email" type="email" {...register("email")} />
+        <Input id="email" type="email" disabled={invited} {...register("email")} />
       </Field>
       <Field label="Role" htmlFor="role">
-        <Select id="role" {...register("role")}>
+        <Select id="role" disabled={invited} {...register("role")}>
           <option value="interviewer">Interviewer</option>
           <option value="hiring_manager">Hiring manager</option>
         </Select>
@@ -239,32 +275,34 @@ function AddMemberForm({ onDone }: { onDone: () => void }) {
         >
           {sent.ok
             ? `We emailed ${sent.email} a link to join. You can also share the link below.`
-            : `We couldn't email ${sent.email}. Copy the link below and send it to them yourself.`}
+            : `We couldn't email ${sent.email}. Share the link below with them yourself.`}
         </p>
       )}
       {inviteUrl && (
         <Field label="One-time invitation link" htmlFor="invite_url" hint="This link expires in 7 days and can only be used once.">
-          <div className="flex gap-2">
-            <Input id="invite_url" readOnly value={inviteUrl} />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label="Copy invitation link"
-              onClick={() => navigator.clipboard.writeText(inviteUrl).then(() => toast.success("Invitation link copied"))}
-            >
-              <Copy />
-            </Button>
-          </div>
+          <InviteLinkBox url={inviteUrl} name={invitedName} />
         </Field>
       )}
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={create.isPending}>
-          {create.isPending ? "Adding..." : "Add team member"}
-        </Button>
+      <div className="flex flex-wrap justify-end gap-2 pt-2">
+        {invited ? (
+          <>
+            <Button type="button" variant="outline" onClick={inviteAnother}>
+              Invite someone else
+            </Button>
+            <Button type="button" onClick={onDone}>
+              Done
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button type="button" variant="outline" onClick={onDone}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={create.isPending}>
+              {create.isPending ? "Adding..." : "Add team member"}
+            </Button>
+          </>
+        )}
       </div>
     </form>
   );

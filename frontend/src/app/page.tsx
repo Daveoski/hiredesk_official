@@ -77,7 +77,7 @@ export default function Home() {
               <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#e6f18f] px-6 text-sm font-semibold text-[#17201d] transition hover:-translate-y-0.5 hover:bg-white">
                 Create your workspace <ArrowRight className="size-4" />
               </Link>
-              <a href="#workflow" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 px-6 text-sm font-semibold text-white transition hover:bg-white/10">
+              <a href="#workflow" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 px-6 text-sm font-semibold text-white transition hover:bg-[rgba(255,255,255,0.12)]">
                 Explore the workflow
               </a>
             </div>

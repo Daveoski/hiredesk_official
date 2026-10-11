@@ -16,9 +16,9 @@ import { formatDate } from "@/lib/utils";
 import { isManager, useAuthStore } from "@/stores/auth-store";
 
 const statusStyle = {
-  open: "bg-stage-hired/15 text-stage-hired",
+  open: "bg-status-good-wash text-status-good",
   draft: "bg-muted text-muted-foreground",
-  closed: "bg-stage-rejected/10 text-stage-rejected",
+  closed: "bg-status-critical-wash text-status-critical",
 } as const;
 
 export default function JobsPage() {

@@ -271,7 +271,7 @@ export default function CandidatePage() {
                       )}
                     </p>
                     {card.status === "submitted" ? (
-                      <Badge className="bg-stage-hired/15 text-stage-hired">
+                      <Badge className="bg-status-good-wash text-status-good">
                         {card.recommendation?.replaceAll("_", " ")} · {card.average_score?.toFixed(1)}/5
                       </Badge>
                     ) : (

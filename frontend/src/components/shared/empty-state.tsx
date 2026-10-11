@@ -25,7 +25,7 @@ export function EmptyState({
 
 export function ErrorState({ message }: { message: string }) {
   return (
-    <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+    <div role="alert" className="rounded-lg border border-status-critical bg-status-critical-wash px-4 py-3 text-sm text-status-critical">
       {message}
     </div>
   );

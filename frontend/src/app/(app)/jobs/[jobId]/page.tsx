@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApplications, useJob } from "@/lib/queries";
+import { canShare, copyText, shareLink } from "@/lib/share";
 import { PIPELINE, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -42,11 +43,13 @@ export default function JobPage() {
             {job.data.status === "open" && (
               <Button
                 variant="outline"
-                onClick={() =>
-                  navigator.clipboard
-                    .writeText(`${window.location.origin}/apply/${job.data.id}`)
-                    .then(() => toast.success("Apply link copied"))
-                }
+                onClick={async () => {
+                  const url = `${window.location.origin}/apply/${job.data.id}`;
+                  // On phones, open the share sheet; elsewhere copy to the clipboard.
+                  if (canShare() && (await shareLink(job.data.title, `Apply for ${job.data.title}:`, url))) return;
+                  if (await copyText(url)) toast.success("Apply link copied");
+                  else toast.error(`Couldn't copy. The link is ${url}`);
+                }}
               >
                 <ExternalLink /> Copy apply link
               </Button>

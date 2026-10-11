@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Button>
       </header>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="left-0 top-0 h-full max-h-none w-72 max-w-none translate-x-0 translate-y-0 rounded-none p-0">
+        <DialogContent className="fixed inset-y-0 left-0 h-full w-72 max-w-none overflow-y-auto rounded-none p-0 sm:p-0">
           <DialogTitle className="sr-only">Menu</DialogTitle>
           <Sidebar onNavigate={() => setOpen(false)} />
         </DialogContent>
