@@ -9,9 +9,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCompany } from "@/lib/queries";
-import { ROLE_LABEL } from "@/lib/stages";
+import { ROLE_LABEL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { isManager, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 function useNavItems() {
   const user = useAuthStore((state) => state.user);

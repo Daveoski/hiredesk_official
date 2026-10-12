@@ -10,6 +10,7 @@ class JobCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=10000)
     qualification_requirements: str = Field(default="", max_length=5000)
+    eligibility_criteria: str = Field(default="", max_length=5000)
     salary_min: int | None = Field(default=None, ge=0)
     salary_max: int | None = Field(default=None, ge=0)
 
@@ -26,10 +27,11 @@ class JobUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = Field(default=None, min_length=1, max_length=10000)
     qualification_requirements: str | None = Field(default=None, max_length=5000)
+    eligibility_criteria: str | None = Field(default=None, max_length=5000)
     salary_min: int | None = Field(default=None, ge=0)
     salary_max: int | None = Field(default=None, ge=0)
     status: JobStatus | None = None
-    @field_validator("title", "description", "qualification_requirements", "status")
+    @field_validator("title", "description", "qualification_requirements", "eligibility_criteria", "status")
     @classmethod
     def cannot_be_null(cls, value):
         if value is None:
@@ -50,6 +52,7 @@ class JobRead(BaseModel):
     title: str
     description: str
     qualification_requirements: str
+    eligibility_criteria: str
     salary_min: int | None
     salary_max: int | None
     status: JobStatus

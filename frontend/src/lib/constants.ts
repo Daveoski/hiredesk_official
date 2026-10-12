@@ -1,9 +1,13 @@
-import type { InterviewStatus, Recommendation, Role, Stage } from "./types";
+import type { Recommendation, Role, Stage } from "./types";
 
-export const STAGES: Stage[] = ["applied", "screen", "interview", "offer", "hired", "rejected"];
+// Every stage, in pipeline order.
+export const PIPELINE: Stage[] = ["applied", "screen", "interview", "offer", "hired", "rejected"];
 
-// The stages a candidate passes through before the final decision.
+// The stages a candidate moves through before a final decision.
 export const MAIN_STAGES: Stage[] = ["applied", "screen", "interview", "offer"];
+
+// The stage endpoint only accepts these. Hired and rejected go through the decision endpoint.
+export const MOVABLE_STAGES: Stage[] = ["screen", "interview", "offer"];
 
 export const STAGE_LABEL: Record<Stage, string> = {
   applied: "Applied",
@@ -23,14 +27,9 @@ export const STAGE_COLOR: Record<Stage, string> = {
   rejected: "var(--stage-rejected)",
 };
 
-// The backend only lets a candidate move one step forward at a time.
-export const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
-  applied: "screen",
-  screen: "interview",
-  interview: "offer",
-};
-
-export const isFinal = (stage: Stage) => stage === "hired" || stage === "rejected";
+export function isFinal(stage: Stage) {
+  return stage === "hired" || stage === "rejected";
+}
 
 export const ROLE_LABEL: Record<Role, string> = {
   company_admin: "Company admin",
@@ -50,19 +49,3 @@ export const RECOMMENDATION_LABEL: Record<Recommendation, string> = {
   maybe: "Maybe",
   not_recommend: "Do not recommend",
 };
-
-// Used to sort candidates by the interviewers' decision.
-export const RECOMMENDATION_RANK: Record<Recommendation, number> = {
-  recommend: 2,
-  maybe: 1,
-  not_recommend: 0,
-};
-
-export const INTERVIEW_STATUS_LABEL: Record<InterviewStatus, string> = {
-  assigned: "Waiting for a date",
-  scheduled: "Scheduled",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
-export const MAX_DOCUMENTS = 6;

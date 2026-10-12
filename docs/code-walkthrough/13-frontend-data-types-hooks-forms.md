@@ -3,7 +3,7 @@
 - `lib/types.ts`: TypeScript shapes that **mirror the backend's response schemas**.
 - `lib/queries.ts`: **hooks** that fetch and change server data with TanStack Query.
 - `lib/schemas.ts`: **Zod** rules for every form.
-- `lib/constants.ts` and `lib/stages.ts`: labels, colours and where each role lands after login.
+- `lib/constants.ts`: stage lists, labels, colours and where each role lands after login.
 
 ## `src/lib/types.ts` (the important parts)
 
@@ -474,12 +474,6 @@ export const scheduleSchema = z.object({
   path: ["location"],
 });
 
-// (Not currently used by a form; the candidate page validates the assessment inline.)
-export const assessmentSchema = z.object({
-  match_score: z.number().int().min(0).max(100).nullable(),
-  manager_notes: z.string().max(5000),
-});
-
 // The scorecard form: a recommendation and 1-20 criteria, each rated 1-5.
 // (The form starts ratings at 0, so "Choose a rating" appears until one is picked.)
 export const scorecardSchema = z.object({
@@ -520,17 +514,19 @@ export function checkSupportingDocument(file: File): string | null {
 }
 ```
 
-## `src/lib/constants.ts` and `src/lib/stages.ts`
+## `src/lib/constants.ts`
 
 ```ts
-import type { InterviewStatus, Recommendation, Role, Stage } from "./types";
+import type { Recommendation, Role, Stage } from "./types";
 
-// Every stage, in pipeline order.
-export const STAGES: Stage[] = ["applied", "screen", "interview", "offer", "hired", "rejected"];
-// (stages.ts calls the same list PIPELINE.)
+// Every stage, in pipeline order (for filters and board columns).
+export const PIPELINE: Stage[] = ["applied", "screen", "interview", "offer", "hired", "rejected"];
 
-// The stages a candidate passes through before the final decision.
+// The stages a candidate moves through before a final decision.
 export const MAIN_STAGES: Stage[] = ["applied", "screen", "interview", "offer"];
+
+// The stage endpoint only accepts these. Hired and rejected go through the decision endpoint.
+export const MOVABLE_STAGES: Stage[] = ["screen", "interview", "offer"];
 
 // Human-readable labels. Record<Stage, string> forces an entry for EVERY stage:
 // forget one and TypeScript reports an error.
@@ -553,16 +549,10 @@ export const STAGE_COLOR: Record<Stage, string> = {
   rejected: "var(--stage-rejected)",
 };
 
-// The next stage for the "move" button (final stages have none).
-// Partial<...> = not every stage needs an entry.
-export const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
-  applied: "screen",
-  screen: "interview",
-  interview: "offer",
-};
-
-// An arrow function stored in a constant: is this a final stage?
-export const isFinal = (stage: Stage) => stage === "hired" || stage === "rejected";
+// Is this a final stage?
+export function isFinal(stage: Stage) {
+  return stage === "hired" || stage === "rejected";
+}
 
 export const ROLE_LABEL: Record<Role, string> = {
   company_admin: "Company admin",
@@ -582,26 +572,6 @@ export const RECOMMENDATION_LABEL: Record<Recommendation, string> = {
   maybe: "Maybe",
   not_recommend: "Do not recommend",
 };
-
-// Used to sort candidates by the interviewers' decision.
-export const RECOMMENDATION_RANK: Record<Recommendation, number> = {
-  recommend: 2,
-  maybe: 1,
-  not_recommend: 0,
-};
-
-export const INTERVIEW_STATUS_LABEL: Record<InterviewStatus, string> = {
-  assigned: "Waiting for a date",
-  scheduled: "Scheduled",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
-export const MAX_DOCUMENTS = 6;
-
-// stages.ts holds the same stage labels/colours plus:
-//   PIPELINE        = all six stages (for filters and board columns)
-//   MOVABLE_STAGES  = ["screen", "interview", "offer"]: what the stage endpoint accepts
-//                     (hired/rejected go through the decision endpoint)
-//   isFinal(stage)  = the same helper as above
 ```
+
+The supporting-document limit (`MAX_DOCUMENTS = 6`) lives in `lib/schemas.ts`, next to the upload checks that use it.

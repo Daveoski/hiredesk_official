@@ -71,7 +71,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCompany } from "@/lib/queries";
-import { ROLE_LABEL } from "@/lib/stages";
+import { ROLE_LABEL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 // (isManager is imported but not used here.)
 import { isManager, useAuthStore } from "@/stores/auth-store";
@@ -252,7 +252,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useChangePassword, useCompany } from "@/lib/queries";
 import { changePasswordSchema } from "@/lib/schemas";
-import { ROLE_LABEL } from "@/lib/stages";
+import { ROLE_LABEL } from "@/lib/constants";
 import { useAuthStore } from "@/stores/auth-store";
 
 type PasswordValues = z.infer<typeof changePasswordSchema>;

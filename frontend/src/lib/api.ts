@@ -54,6 +54,23 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
   return body as T;
 }
 
+/**
+ * Open a candidate's CV or document in a new tab. The API hands out a link that only works for a
+ * few minutes. The tab is opened before the request, while the click still counts as the user's,
+ * so pop-up blockers allow it.
+ */
+export async function openFile(path: string): Promise<void> {
+  const tab = window.open("", "_blank");
+  try {
+    const { url } = await request<{ url: string }>(path);
+    if (tab) tab.location.href = url;
+    else window.location.href = url;
+  } catch (error) {
+    tab?.close();
+    throw error;
+  }
+}
+
 export const api = {
   get: <T>(path: string, auth = true) => request<T>(path, {}, auth),
   post: <T>(path: string, data?: unknown) =>

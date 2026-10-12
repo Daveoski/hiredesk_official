@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { AIFinalReviewCard, AIScreeningCard } from "@/components/features/ai-assistant-panel";
 import { ScheduleDialog } from "@/components/features/schedule-dialog";
 import { ScorecardDialog } from "@/components/features/scorecard-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
@@ -18,8 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/shared/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { openFile } from "@/lib/api";
 import {
   useApplication,
+  useApplicationAI,
   useAssessApplication,
   useCancelInterview,
   useHistory,
@@ -27,8 +30,8 @@ import {
   useScorecards,
   useUsers,
 } from "@/lib/queries";
-import { STAGE_LABEL } from "@/lib/stages";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import { STAGE_LABEL } from "@/lib/constants";
+import { formatDate, formatDateTime, formatSalary } from "@/lib/utils";
 import { isManager, useAuthStore } from "@/stores/auth-store";
 
 export default function CandidatePage() {
@@ -41,6 +44,7 @@ export default function CandidatePage() {
   const scorecards = useScorecards(applicationId);
   const history = useHistory(applicationId, manager);
   const users = useUsers(manager);
+  const ai = useApplicationAI(applicationId, manager);
   const cancel = useCancelInterview();
   const assess = useAssessApplication();
 
@@ -64,6 +68,10 @@ export default function CandidatePage() {
   const interviewOf = (id: string) => interviews.data?.find((item) => item.id === id);
   const mine = scorecards.data?.scorecards.filter((card) => card.interviewer_id === user?.id) ?? [];
   const waitingOnMe = !manager && mine.some((card) => card.status === "pending");
+  const finalReviewReady =
+    candidate.match_score !== null && (scorecards.data?.scorecards.some((card) => card.status === "submitted") ?? false);
+  // Files are opened through short-lived signed links from the API.
+  const open = (path: string) => openFile(`/applications/${candidate.id}/files/${path}`).catch((error: Error) => toast.error(error.message));
 
   return (
     <>
@@ -103,9 +111,9 @@ export default function CandidatePage() {
               <a href={`tel:${candidate.phone}`} className="flex items-center gap-2 hover:text-primary">
                 <Phone className="size-4 text-muted-foreground" /> {candidate.phone}
               </a>
-              <a href={candidate.cv_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 font-semibold text-primary hover:underline">
+              <button type="button" onClick={() => open("cv")} className="flex items-center gap-2 self-start font-semibold text-primary hover:underline">
                 <FileText className="size-4" /> Open CV
-              </a>
+              </button>
               {candidate.expected_salary !== null && (
                 <p className="text-muted-foreground">Expected salary: {candidate.expected_salary.toLocaleString()}</p>
               )}
@@ -119,11 +127,11 @@ export default function CandidatePage() {
                 <div className="border-t pt-3">
                   <p className="mb-2 font-semibold">Supporting documents</p>
                   <ul className="flex flex-col gap-2">
-                    {candidate.supporting_documents.map((document) => (
+                    {candidate.supporting_documents.map((document, index) => (
                       <li key={document.url}>
-                        <a href={document.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline">
-                          <FileText className="size-4" /> {document.name}
-                        </a>
+                        <button type="button" onClick={() => open(`documents/${index}`)} className="flex items-center gap-2 text-left text-primary hover:underline">
+                          <FileText className="size-4 shrink-0" /> {document.name}
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -141,9 +149,15 @@ export default function CandidatePage() {
               <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
                 {candidate.job_qualification_requirements || "No specific qualifications listed."}
               </p>
+              {candidate.job_eligibility_criteria && (
+                <div className="border-t pt-3">
+                  <p className="font-semibold">Eligibility criteria</p>
+                  <p className="mt-1 whitespace-pre-line leading-relaxed text-muted-foreground">{candidate.job_eligibility_criteria}</p>
+                </div>
+              )}
               {(candidate.job_salary_min !== null || candidate.job_salary_max !== null) && (
                 <p className="border-t pt-3 font-semibold">
-                  Salary range: {candidate.job_salary_min?.toLocaleString() ?? "Not stated"} – {candidate.job_salary_max?.toLocaleString() ?? "Not stated"}
+                  Salary range: {formatSalary(candidate.job_salary_min)} – {formatSalary(candidate.job_salary_max)}
                 </p>
               )}
             </CardContent>
@@ -201,6 +215,8 @@ export default function CandidatePage() {
         </div>
 
         <div className="flex flex-col gap-6">
+          {manager && <AIScreeningCard applicationId={candidate.id} ai={ai.data} />}
+
           <Card>
             <CardHeader>
               <CardTitle>Interviews</CardTitle>
@@ -294,6 +310,8 @@ export default function CandidatePage() {
               )}
             </CardContent>
           </Card>
+
+          {manager && <AIFinalReviewCard applicationId={candidate.id} ai={ai.data} ready={finalReviewReady} />}
         </div>
       </div>
 

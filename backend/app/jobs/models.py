@@ -33,6 +33,7 @@ class Job(SQLModel, table=True):
     title: str
     description: str
     qualification_requirements: str = Field(default="", max_length=5000)
+    eligibility_criteria: str = Field(default="", max_length=5000)
     salary_min: int | None = Field(default=None, ge=0)
     salary_max: int | None = Field(default=None, ge=0)
     status: JobStatus = Field(default=JobStatus.draft, sa_type=enum_column(JobStatus))

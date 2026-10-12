@@ -11,3 +11,4 @@ pwdlib[argon2]>=0.2
 python-multipart>=0.0.9
 cloudinary>=1.40
 resend>=2.0
+google-genai>=2.29

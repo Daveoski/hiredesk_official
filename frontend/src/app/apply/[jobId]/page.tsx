@@ -20,6 +20,7 @@ import { api } from "@/lib/api";
 import { applySchema, checkSupportingDocument, MAX_DOCUMENTS } from "@/lib/schemas";
 import { uploadDirect } from "@/lib/uploads";
 import type { PublicJob } from "@/lib/types";
+import { formatSalary } from "@/lib/utils";
 
 type ApplyValues = z.infer<typeof applySchema>;
 
@@ -116,9 +117,15 @@ export default function ApplyPage() {
                   <p className="max-w-prose whitespace-pre-line leading-relaxed text-foreground/80">{job.data.qualification_requirements}</p>
                 </>
               )}
+              {job.data.eligibility_criteria && (
+                <>
+                  <h2 className="mb-2 mt-8 text-xl font-semibold">Who can apply</h2>
+                  <p className="max-w-prose whitespace-pre-line leading-relaxed text-foreground/80">{job.data.eligibility_criteria}</p>
+                </>
+              )}
               {(job.data.salary_min !== null || job.data.salary_max !== null) && (
                 <p className="mt-5 text-sm font-semibold text-muted-foreground">
-                  Salary range: {job.data.salary_min?.toLocaleString() ?? "Not stated"} – {job.data.salary_max?.toLocaleString() ?? "Not stated"}
+                  Salary range: {formatSalary(job.data.salary_min)} – {formatSalary(job.data.salary_max)}
                 </p>
               )}
             </section>

@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input, Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApplications } from "@/lib/queries";
-import { PIPELINE, STAGE_LABEL } from "@/lib/stages";
+import { PIPELINE, STAGE_LABEL } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { isManager, useAuthStore } from "@/stores/auth-store";
 

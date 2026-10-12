@@ -29,6 +29,14 @@ class Settings(BaseSettings):
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
 
+    # The AI hiring assistant (Google Gemini). Leave GEMINI_API_KEY empty to turn it off.
+    gemini_api_key: str = ""
+    # A pinned Flash model with a free tier. ("gemini-flash-latest" jumps to each new release,
+    # which is often overloaded in its first weeks.)
+    gemini_model: str = "gemini-3.6-flash"
+    # Used when the main model is overloaded or out of free quota. Empty turns it off.
+    gemini_fallback_model: str = "gemini-flash-lite-latest"
+
     resend_api_key: str = ""
     email_from: str = "HireDesk <onboarding@resend.dev>"
 

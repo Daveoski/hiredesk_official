@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { useDecide, useMoveStage } from "@/lib/queries";
-import { isFinal, MOVABLE_STAGES, STAGE_LABEL } from "@/lib/stages";
+import { isFinal, MOVABLE_STAGES, STAGE_LABEL } from "@/lib/constants";
 import type { Application } from "@/lib/types";
 
 // Managers use this to move a candidate or make the final decision.

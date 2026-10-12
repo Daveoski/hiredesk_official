@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { Stage } from "@/lib/types";
 
 export function StageBadge({ stage }: { stage: Stage }) {

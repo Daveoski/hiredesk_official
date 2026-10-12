@@ -7,9 +7,8 @@ import { StageBadge } from "@/components/shared/stage-badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RECOMMENDATION_LABEL } from "@/lib/constants";
 import { useApplications, useInterviews, useJobs } from "@/lib/queries";
-import { MAIN_STAGES, isFinal } from "@/lib/stages";
+import { MAIN_STAGES, RECOMMENDATION_LABEL, isFinal } from "@/lib/constants";
 import type { Application, Stage, User } from "@/lib/types";
 import { AllClear, Agenda, DashboardHero, OutcomeTile, QuietEmpty, Section, StageBars, StatTile, TaskRow, relativeTime } from "./parts";
 

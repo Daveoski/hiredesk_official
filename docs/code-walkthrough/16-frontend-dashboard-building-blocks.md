@@ -21,7 +21,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { Stage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 

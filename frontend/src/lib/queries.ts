@@ -2,10 +2,12 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { api } from "./api";
 import type {
   Application,
+  ApplicationAI,
   ApplicationScorecards,
   Company,
   Interview,
   Job,
+  JobDraft,
   JobStatus,
   PendingInvitation,
   ProgressReport,
@@ -71,6 +73,16 @@ export const useScorecards = (applicationId: string) =>
     queryFn: () => api.get<ApplicationScorecards>(`/applications/${applicationId}/scorecards`),
   });
 
+// Hiring managers only: the AI screening and final review of one candidate.
+export const useApplicationAI = (applicationId: string, enabled = true) =>
+  useQuery({
+    queryKey: ["application-ai", applicationId],
+    queryFn: () => api.get<ApplicationAI>(`/applications/${applicationId}/ai`),
+    enabled,
+    // A new application is screened in the background, so check again shortly after it arrives.
+    refetchInterval: (query) => (query.state.data?.enabled && !query.state.data.screening ? 15_000 : false),
+  });
+
 // Company admins only.
 export const useProgressReport = (days: number, enabled = true) =>
   useQuery({
@@ -104,7 +116,7 @@ function useRefresh() {
 export function useCreateJob() {
   const refresh = useRefresh();
   return useMutation({
-    mutationFn: (body: { title: string; description: string; qualification_requirements: string; salary_min?: number; salary_max?: number }) =>
+    mutationFn: (body: { title: string; description: string; qualification_requirements: string; eligibility_criteria: string; salary_min?: number; salary_max?: number }) =>
       api.post<Job>("/jobs", body),
     onSuccess: () => refresh("jobs"),
   });
@@ -113,7 +125,7 @@ export function useCreateJob() {
 export function useUpdateJob(jobId: string) {
   const refresh = useRefresh();
   return useMutation({
-    mutationFn: (body: { title?: string; description?: string; qualification_requirements?: string; salary_min?: number | null; salary_max?: number | null; status?: JobStatus }) =>
+    mutationFn: (body: { title?: string; description?: string; qualification_requirements?: string; eligibility_criteria?: string; salary_min?: number | null; salary_max?: number | null; status?: JobStatus }) =>
       api.patch<Job>(`/jobs/${jobId}`, body),
     onSuccess: () => refresh("jobs", "applications"),
   });
@@ -229,3 +241,22 @@ export function useRevokeInvitation() {
     onSuccess: () => refresh("invitations"),
   });
 }
+
+// ---- AI hiring assistant ----
+
+export function useDraftJob() {
+  return useMutation({
+    mutationFn: (body: { title: string; notes: string }) => api.post<JobDraft>("/ai/job-draft", body),
+  });
+}
+
+function useApplicationAIAction(action: "screening" | "final-review") {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (applicationId: string) => api.post<ApplicationAI>(`/applications/${applicationId}/ai/${action}`),
+    onSuccess: (data, applicationId) => queryClient.setQueryData(["application-ai", applicationId], data),
+  });
+}
+
+export const useRunScreening = () => useApplicationAIAction("screening");
+export const useFinalReview = () => useApplicationAIAction("final-review");

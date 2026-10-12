@@ -13,6 +13,7 @@ Two ways to get a file in:
 import logging
 import re
 import time
+import urllib.request
 import uuid
 from pathlib import Path
 from typing import Literal
@@ -163,3 +164,51 @@ def confirm_upload(kind: UploadKind, public_id: str) -> str:
             logger.exception("Could not delete the oversized upload %s", public_id)
         raise HTTPException(413, size_error)
     return resource["secure_url"]
+
+
+# ---- Reading files back ----
+
+SIGNED_LINK_SECONDS = 10 * 60
+
+
+def _public_id(stored_url: str, cloud_name: str) -> str | None:
+    """The raw file's public id in a stored delivery URL, or None for a URL that is not ours."""
+    match = re.fullmatch(
+        rf"https://res\.cloudinary\.com/{re.escape(cloud_name)}/raw/upload/(?:v\d+/)?(hiredesk/[\w/.-]+|[\w.-]+)",
+        stored_url,
+    )
+    return match.group(1) if match else None
+
+
+def signed_file_url(stored_url: str) -> str:
+    """A link that opens a stored CV or document for the next few minutes.
+
+    Cloudinary blocks plain delivery of PDF files on many accounts ("deny or ACL failure"),
+    so files are read through its signed download API instead, which that setting does not
+    affect. The link expires, so it is only useful to whoever just asked for it.
+    """
+    settings = _configure()
+    public_id = _public_id(stored_url, settings.cloudinary_cloud_name)
+    if public_id is None:
+        return stored_url
+    return cloudinary.utils.private_download_url(
+        public_id,
+        "",  # raw files keep their extension in the public id
+        resource_type="raw",
+        type="upload",
+        expires_at=int(time.time()) + SIGNED_LINK_SECONDS,
+    )
+
+
+def download_file(stored_url: str, max_bytes: int = MAX_DOCUMENT_BYTES) -> bytes:
+    """The bytes of a stored file, for the AI assistant to read."""
+    url = signed_file_url(stored_url)
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:  # noqa: S310 - our own storage URL
+            data = response.read(max_bytes + 1)
+    except Exception as error:
+        logger.exception("Could not download %s", stored_url)
+        raise HTTPException(502, "Could not read the candidate's files, please try again") from error
+    if len(data) > max_bytes:
+        raise HTTPException(413, "A candidate file is too large to read")
+    return data

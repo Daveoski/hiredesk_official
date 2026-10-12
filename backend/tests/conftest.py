@@ -8,6 +8,8 @@ assert TEST_DATABASE_URL.endswith("_test"), "The tests empty every table, so the
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-characters-long"
 os.environ["RESEND_API_KEY"] = ""  # emails are skipped during tests
+os.environ["SMTP_HOST"] = ""  # even when the developer's .env sends through Gmail
+os.environ["GEMINI_API_KEY"] = ""  # the AI assistant is faked in tests
 os.environ["CLOUDINARY_CLOUD_NAME"] = "test-cloud"
 os.environ["CLOUDINARY_API_KEY"] = "test-key"
 os.environ["CLOUDINARY_API_SECRET"] = "test-secret"

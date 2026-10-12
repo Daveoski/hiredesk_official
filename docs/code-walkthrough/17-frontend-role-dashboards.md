@@ -163,7 +163,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RECOMMENDATION_LABEL } from "@/lib/constants";
 import { useApplications, useInterviews, useJobs } from "@/lib/queries";
-import { MAIN_STAGES, isFinal } from "@/lib/stages";
+import { MAIN_STAGES, isFinal } from "@/lib/constants";
 import type { Application, Stage, User } from "@/lib/types";
 import { AllClear, Agenda, DashboardHero, OutcomeTile, QuietEmpty, Section, StageBars, StatTile, TaskRow, relativeTime } from "./parts";
 
@@ -382,7 +382,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RECOMMENDATION_LABEL } from "@/lib/constants";
 import { useEmailProgressReport, useProgressReport } from "@/lib/queries";
-import { MAIN_STAGES, ROLE_LABEL, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { MAIN_STAGES, ROLE_LABEL, STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { ProgressReport, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DashboardHero, OutcomeTile, QuietEmpty, Section, StageBars, StageDot, StatTile, Timeline, relativeTime } from "./parts";

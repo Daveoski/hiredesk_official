@@ -273,7 +273,7 @@ import { Input, Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateUser, usePendingInvitations, useResendInvitation, useRevokeInvitation, useUsers } from "@/lib/queries";
 import { userSchema } from "@/lib/schemas";
-import { ROLE_LABEL } from "@/lib/stages";
+import { ROLE_LABEL } from "@/lib/constants";
 import type { PendingInvitation } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 

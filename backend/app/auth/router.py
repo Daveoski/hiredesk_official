@@ -1,7 +1,6 @@
-from typing import Annotated
-from datetime import timedelta
 import hashlib
 import secrets
+from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,7 +11,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from app.auth.dependencies import CurrentUser
-from app.auth.schemas import ChangePasswordRequest, GoogleAuthRequest, RegisterRequest, Token
+from app.auth.schemas import (
+    ChangePasswordRequest,
+    GoogleAuthRequest,
+    RegisterRequest,
+    Token,
+)
 from app.companies.models import Company
 from app.core.config import get_settings
 from app.core.email import send_email

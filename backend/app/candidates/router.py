@@ -1,7 +1,8 @@
 import uuid
 from typing import Literal
 
-from fastapi import APIRouter, BackgroundTasks, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import case
 from sqlmodel import col, select
 
@@ -18,6 +19,7 @@ from app.candidates.schemas import (
 from app.candidates.service import change_stage
 from app.core.email import send_email
 from app.core.notifications import label, notify_company_admins
+from app.core.storage import signed_file_url
 from app.db.session import DbSession
 from app.jobs.models import Stage
 
@@ -91,6 +93,26 @@ def list_applications(
 def read_application(application_id: uuid.UUID, user: CurrentUser, db: DbSession):
     application, job = get_visible_application(db, user, application_id)
     return ApplicationRead.from_rows(application, job)
+
+
+class FileLink(BaseModel):
+    """A short-lived link to a candidate's file. Open it right away; it expires after a few minutes."""
+
+    url: str
+
+
+@router.get("/{application_id}/files/cv", response_model=FileLink)
+def open_cv(application_id: uuid.UUID, user: CurrentUser, db: DbSession):
+    application, _ = get_visible_application(db, user, application_id)
+    return FileLink(url=signed_file_url(application.cv_url))
+
+
+@router.get("/{application_id}/files/documents/{index}", response_model=FileLink)
+def open_supporting_document(application_id: uuid.UUID, index: int, user: CurrentUser, db: DbSession):
+    application, _ = get_visible_application(db, user, application_id)
+    if not 0 <= index < len(application.supporting_documents):
+        raise HTTPException(404, "Document not found")
+    return FileLink(url=signed_file_url(application.supporting_documents[index]["url"]))
 
 
 @router.patch("/{application_id}/stage", response_model=ApplicationRead)

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Field } from "@/components/shared/field";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input, Select } from "@/components/ui/input";
+import { Select } from "@/components/ui/input";
 import { useAssignInterviewer, useUsers } from "@/lib/queries";
 import { assignInterviewerSchema } from "@/lib/schemas";
 import type { Application } from "@/lib/types";

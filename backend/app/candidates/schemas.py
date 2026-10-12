@@ -15,6 +15,7 @@ class ApplicationRead(BaseModel):
     job_id: uuid.UUID
     job_title: str
     job_qualification_requirements: str
+    job_eligibility_criteria: str
     job_salary_min: int | None
     job_salary_max: int | None
     full_name: str
@@ -37,6 +38,7 @@ class ApplicationRead(BaseModel):
             **application.model_dump(),
             job_title=job.title,
             job_qualification_requirements=job.qualification_requirements,
+            job_eligibility_criteria=job.eligibility_criteria,
             job_salary_min=job.salary_min,
             job_salary_max=job.salary_max,
         )

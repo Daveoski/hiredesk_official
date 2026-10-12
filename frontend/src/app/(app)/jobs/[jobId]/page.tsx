@@ -15,7 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApplications, useJob } from "@/lib/queries";
 import { canShare, copyText, shareLink } from "@/lib/share";
-import { PIPELINE, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { PIPELINE, STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
+import { formatSalary } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function JobPage() {
@@ -104,9 +105,11 @@ export default function JobPage() {
             <p className="whitespace-pre-line leading-relaxed">{job.data.description}</p>
             <h2 className="mb-2 mt-6 font-display text-xl font-semibold">Required qualifications</h2>
             <p className="whitespace-pre-line leading-relaxed">{job.data.qualification_requirements || "No qualifications listed."}</p>
+            <h2 className="mb-2 mt-6 font-display text-xl font-semibold">Eligibility criteria</h2>
+            <p className="whitespace-pre-line leading-relaxed">{job.data.eligibility_criteria || "No eligibility criteria listed."}</p>
             <h2 className="mb-2 mt-6 font-display text-xl font-semibold">Salary range</h2>
             <p className="leading-relaxed">
-              {job.data.salary_min?.toLocaleString() ?? "Not stated"} – {job.data.salary_max?.toLocaleString() ?? "Not stated"}
+              {formatSalary(job.data.salary_min)} – {formatSalary(job.data.salary_max)}
             </p>
           </div>
         </TabsContent>

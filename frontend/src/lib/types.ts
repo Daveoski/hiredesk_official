@@ -45,6 +45,7 @@ export interface Job {
   title: string;
   description: string;
   qualification_requirements: string;
+  eligibility_criteria: string;
   salary_min: number | null;
   salary_max: number | null;
   status: JobStatus;
@@ -59,6 +60,7 @@ export interface PublicJob {
   description: string;
   company_name: string;
   qualification_requirements: string;
+  eligibility_criteria: string;
   salary_min: number | null;
   salary_max: number | null;
 }
@@ -68,6 +70,7 @@ export interface Application {
   job_id: string;
   job_title: string;
   job_qualification_requirements: string;
+  job_eligibility_criteria: string;
   job_salary_min: number | null;
   job_salary_max: number | null;
   full_name: string;
@@ -193,4 +196,52 @@ export interface ProgressReport {
 export interface ApplicationScorecards {
   aggregate_score: number | null;
   scorecards: Scorecard[];
+}
+
+// ---- AI hiring assistant (hiring managers only) ----
+
+export interface JobDraft {
+  description: string;
+  qualification_requirements: string;
+  eligibility_criteria: string;
+}
+
+export interface CriterionCheck {
+  criterion: string;
+  status: "met" | "not_met" | "unclear";
+  evidence: string;
+}
+
+export interface AIScreening {
+  match_score: number;
+  recommendation: "advance_to_interview" | "needs_review" | "reject";
+  summary: string;
+  strengths: string[];
+  gaps: string[];
+  qualification_checks: CriterionCheck[];
+  eligibility_checks: CriterionCheck[];
+  cover_letter_assessment: string;
+  documents_read: string[];
+  documents_skipped: string[];
+  generated_at: string;
+}
+
+export interface AIFinalReview {
+  decision: "hire" | "do_not_hire" | "needs_more_information";
+  confidence: "low" | "medium" | "high";
+  summary: string;
+  score_comparison: string;
+  strengths: string[];
+  concerns: string[];
+  reasoning: string;
+  manager_match_score: number;
+  interviewer_average: number;
+  scorecards_compared: number;
+  generated_at: string;
+}
+
+export interface ApplicationAI {
+  enabled: boolean;
+  screening: AIScreening | null;
+  final_review: AIFinalReview | null;
 }

@@ -28,6 +28,9 @@ class Application(SQLModel, table=True):
     interviewer_recommendation: str | None = None
     supporting_documents: list[dict[str, str]] = Field(default_factory=list, sa_type=JSON)
     cover_letter: str | None = None
+    # Written by the AI assistant (app/ai). Managers read them; interviewers never see them.
+    ai_screening: dict | None = Field(default=None, sa_type=JSON)
+    ai_final_review: dict | None = Field(default=None, sa_type=JSON)
     stage: Stage = Field(default=Stage.applied, sa_type=enum_column(Stage))
     created_at: datetime = Field(default_factory=utcnow, sa_type=TIMESTAMPTZ)
 

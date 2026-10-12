@@ -34,6 +34,7 @@ export const jobSchema = z.object({
   title: z.string().min(1, "Enter a job title").max(200),
   description: z.string().min(1, "Describe the role").max(10000),
   qualification_requirements: z.string().max(5000),
+  eligibility_criteria: z.string().max(5000),
   salary_min: z.string().optional().refine((value) => !value || /^\d+$/.test(value), "Enter a whole number"),
   salary_max: z.string().optional().refine((value) => !value || /^\d+$/.test(value), "Enter a whole number"),
   status: z.enum(["draft", "open", "closed"]),
@@ -80,11 +81,6 @@ export const scheduleSchema = z.object({
 }).refine((values) => values.meeting_type !== "in_person" || Boolean(values.location), {
   message: "Enter the meeting location",
   path: ["location"],
-});
-
-export const assessmentSchema = z.object({
-  match_score: z.number().int().min(0).max(100).nullable(),
-  manager_notes: z.string().max(5000),
 });
 
 export const scorecardSchema = z.object({

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from app.ai.router import router as ai_router
 from app.auth.router import router as auth_router
 from app.candidates.public_router import router as public_router
 from app.candidates.router import router as candidates_router
@@ -38,6 +39,7 @@ app.include_router(candidates_router)
 app.include_router(interviews_router)
 app.include_router(scorecards_router)
 app.include_router(reports_router)
+app.include_router(ai_router)
 
 
 @app.get("/health", tags=["Health"])

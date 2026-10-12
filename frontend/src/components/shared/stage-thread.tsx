@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { MAIN_STAGES, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { MAIN_STAGES, STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { Stage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 

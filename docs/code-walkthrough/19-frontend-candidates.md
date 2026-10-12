@@ -22,7 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Input, Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApplications } from "@/lib/queries";
-import { PIPELINE, STAGE_LABEL } from "@/lib/stages";
+import { PIPELINE, STAGE_LABEL } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { isManager, useAuthStore } from "@/stores/auth-store";
 
@@ -144,7 +144,7 @@ import {
   useScorecards,
   useUsers,
 } from "@/lib/queries";
-import { STAGE_LABEL } from "@/lib/stages";
+import { STAGE_LABEL } from "@/lib/constants";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import { isManager, useAuthStore } from "@/stores/auth-store";
 
@@ -492,7 +492,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { useDecide, useMoveStage } from "@/lib/queries";
-import { isFinal, MOVABLE_STAGES, STAGE_LABEL } from "@/lib/stages";
+import { isFinal, MOVABLE_STAGES, STAGE_LABEL } from "@/lib/constants";
 import type { Application } from "@/lib/types";
 
 // Managers use this to move a candidate or make the final decision.
@@ -586,7 +586,7 @@ export function StageMenu({ application }: { application: Application }) {
 
 ```tsx
 import { Check } from "lucide-react";
-import { MAIN_STAGES, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { MAIN_STAGES, STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { Stage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -660,7 +660,7 @@ export function StageThread({ stage, className }: { stage: Stage; className?: st
 ```tsx
 // stage-badge.tsx: a small pill with a coloured dot and the stage name.
 import { Badge } from "@/components/ui/badge";
-import { STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import type { Stage } from "@/lib/types";
 
 export function StageBadge({ stage }: { stage: Stage }) {

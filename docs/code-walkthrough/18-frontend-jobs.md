@@ -120,7 +120,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApplications, useJob } from "@/lib/queries";
-import { PIPELINE, STAGE_COLOR, STAGE_LABEL } from "@/lib/stages";
+import { PIPELINE, STAGE_COLOR, STAGE_LABEL } from "@/lib/constants";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function JobPage() {

@@ -7,6 +7,8 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
+from app.ai.service import is_enabled as ai_enabled
+from app.ai.service import screen_in_background
 from app.candidates.models import Application, StageHistory
 from app.candidates.schemas import ApplicationReceipt
 from app.companies.models import Company
@@ -31,6 +33,7 @@ class PublicJobRead(BaseModel):
     description: str
     company_name: str
     qualification_requirements: str
+    eligibility_criteria: str
     salary_min: int | None
     salary_max: int | None
 
@@ -53,6 +56,7 @@ def read_public_job(job_id: uuid.UUID, db: DbSession):
         description=job.description,
         company_name=company.name,
         qualification_requirements=job.qualification_requirements,
+        eligibility_criteria=job.eligibility_criteria,
         salary_min=job.salary_min,
         salary_max=job.salary_max,
     )
@@ -154,6 +158,9 @@ def apply_to_job(
     db.add(StageHistory(application_id=application.id, from_stage=None, to_stage=Stage.applied))
     db.commit()
 
+    if ai_enabled():
+        # Screen the CV and documents right away, so the hiring manager sees it before the interview stage.
+        background_tasks.add_task(screen_in_background, application.id)
     company = db.get(Company, job.company_id)
     background_tasks.add_task(
         send_email,
