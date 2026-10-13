@@ -4,7 +4,7 @@
 - `/candidates/[applicationId]`: everything about one candidate (profile, assessment, interviews, scorecards, history).
 - `StageMenu`: move, hire or reject.
 - `StageThread` / `StageBadge`: the stage visuals.
-- `ScheduleDialog` (assign an interviewer) and `ScorecardDialog` (fill in a scorecard).
+- `AssignInterviewerDialog` (assign an interviewer) and `ScorecardDialog` (fill in a scorecard).
 
 ## `src/app/(app)/candidates/page.tsx`
 
@@ -122,8 +122,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ScheduleDialog } from "@/components/features/schedule-dialog";
-import { ScorecardDialog } from "@/components/features/scorecard-dialog";
+import { AssignInterviewerDialog } from "@/components/features/candidates/assign-interviewer-dialog";
+import { ScorecardDialog } from "@/components/features/interviews/scorecard-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { StageMenu } from "@/components/shared/stage-menu";
 import { StageThread } from "@/components/shared/stage-thread";
@@ -440,7 +440,7 @@ export default function CandidatePage() {
       </div>
 
       {/* The three dialogs. */}
-      {manager && <ScheduleDialog application={candidate} open={scheduling} onOpenChange={setScheduling} />}
+      {manager && <AssignInterviewerDialog application={candidate} open={scheduling} onOpenChange={setScheduling} />}
       {scoring && (
         <ScorecardDialog interviewId={scoring} candidateName={candidate.full_name} open onOpenChange={() => setScoring(null)} />
       )}
@@ -673,7 +673,7 @@ export function StageBadge({ stage }: { stage: Stage }) {
 }
 ```
 
-## `src/components/features/schedule-dialog.tsx`: assign an interviewer
+## `src/components/features/candidates/assign-interviewer-dialog.tsx`: assign an interviewer
 
 ```tsx
 "use client";
@@ -693,7 +693,7 @@ import type { Application } from "@/lib/types";
 type AssignmentValues = z.infer<typeof assignInterviewerSchema>;
 
 // Managers assign an interviewer; the interviewer chooses the time and meeting format.
-export function ScheduleDialog({
+export function AssignInterviewerDialog({
   application,
   open,
   onOpenChange,
@@ -710,13 +710,13 @@ export function ScheduleDialog({
           <DialogDescription>Choose a teammate to interview {application.full_name} for {application.job_title}.</DialogDescription>
         </DialogHeader>
         {/* Render the form only while open, so it starts fresh every time. */}
-        {open && <ScheduleForm application={application} onDone={() => onOpenChange(false)} />}
+        {open && <AssignInterviewerForm application={application} onDone={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function ScheduleForm({ application, onDone }: { application: Application; onDone: () => void }) {
+function AssignInterviewerForm({ application, onDone }: { application: Application; onDone: () => void }) {
   // GET /users?role=interviewer: the company's interviewers.
   const interviewers = useUsers(true, "interviewer");
   const assign = useAssignInterviewer();
@@ -772,7 +772,7 @@ function ScheduleForm({ application, onDone }: { application: Application; onDon
 }
 ```
 
-## `src/components/features/scorecard-dialog.tsx`
+## `src/components/features/interviews/scorecard-dialog.tsx`
 
 ```tsx
 "use client";

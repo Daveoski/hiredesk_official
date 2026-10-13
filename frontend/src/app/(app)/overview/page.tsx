@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AdminDashboard } from "@/components/features/dashboard/admin-dashboard";
 import { InterviewerDashboard } from "@/components/features/dashboard/interviewer-dashboard";
 import { ManagerDashboard } from "@/components/features/dashboard/manager-dashboard";
-import { JobFormDialog } from "@/components/features/job-form-dialog";
+import { JobFormDialog } from "@/components/features/jobs/job-form-dialog";
 import { useAuthStore } from "@/stores/auth-store";
 
 // Every signed-in user lands here and sees a dashboard for their own role and work.

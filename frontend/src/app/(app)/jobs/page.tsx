@@ -4,7 +4,7 @@ import { Briefcase, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { JobFormDialog } from "@/components/features/job-form-dialog";
+import { JobFormDialog } from "@/components/features/jobs/job-form-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";

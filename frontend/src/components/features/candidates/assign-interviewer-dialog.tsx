@@ -15,7 +15,7 @@ import type { Application } from "@/lib/types";
 type AssignmentValues = z.infer<typeof assignInterviewerSchema>;
 
 // Managers assign an interviewer; the interviewer chooses the time and meeting format.
-export function ScheduleDialog({
+export function AssignInterviewerDialog({
   application,
   open,
   onOpenChange,
@@ -31,13 +31,13 @@ export function ScheduleDialog({
           <DialogTitle>Assign interviewer</DialogTitle>
           <DialogDescription>Choose a teammate to interview {application.full_name} for {application.job_title}.</DialogDescription>
         </DialogHeader>
-        {open && <ScheduleForm application={application} onDone={() => onOpenChange(false)} />}
+        {open && <AssignInterviewerForm application={application} onDone={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function ScheduleForm({ application, onDone }: { application: Application; onDone: () => void }) {
+function AssignInterviewerForm({ application, onDone }: { application: Application; onDone: () => void }) {
   const interviewers = useUsers(true, "interviewer");
   const assign = useAssignInterviewer();
   const {

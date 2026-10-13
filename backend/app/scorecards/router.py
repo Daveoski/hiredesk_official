@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from sqlmodel import Session, col, select
+from sqlmodel import col, select
 
 from app.auth.dependencies import CurrentUser, InterviewerUser
 from app.auth.permissions import get_visible_application
@@ -13,6 +13,7 @@ from app.interviews.models import Interview, InterviewStatus
 from app.jobs.models import Job
 from app.scorecards.models import Recommendation, Scorecard, ScorecardRating, ScorecardStatus
 from app.scorecards.schemas import ApplicationScorecards, ScorecardRead, ScorecardSubmit
+from app.scorecards.service import load_ratings
 from app.users.models import Role, User
 
 router = APIRouter(tags=["Scorecards"])
@@ -131,19 +132,6 @@ def hide_scorecards_from_interviewer(rows: list[tuple[Scorecard, Interview]], in
         for card, interview in rows
         if interview.interviewer_id == interviewer.id or card.status == ScorecardStatus.submitted
     ]
-
-
-def load_ratings(db: Session, scorecard_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[ScorecardRating]]:
-    ratings_by_scorecard: dict[uuid.UUID, list[ScorecardRating]] = {card_id: [] for card_id in scorecard_ids}
-    if scorecard_ids:
-        ratings = db.exec(
-            select(ScorecardRating)
-            .where(col(ScorecardRating.scorecard_id).in_(scorecard_ids))
-            .order_by(col(ScorecardRating.criterion))
-        ).all()
-        for rating in ratings:
-            ratings_by_scorecard[rating.scorecard_id].append(rating)
-    return ratings_by_scorecard
 
 
 @router.get("/applications/{application_id}/scorecards", response_model=ApplicationScorecards)

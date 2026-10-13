@@ -14,7 +14,7 @@ import { Briefcase, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { JobFormDialog } from "@/components/features/job-form-dialog";
+import { JobFormDialog } from "@/components/features/jobs/job-form-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -111,8 +111,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CandidateCard } from "@/components/features/candidate-card";
-import { JobFormDialog } from "@/components/features/job-form-dialog";
+import { CandidateCard } from "@/components/features/candidates/candidate-card";
+import { JobFormDialog } from "@/components/features/jobs/job-form-dialog";
 import { ErrorState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -235,7 +235,7 @@ export default function JobPage() {
 }
 ```
 
-## `src/components/features/job-form-dialog.tsx`
+## `src/components/features/jobs/job-form-dialog.tsx`
 
 ```tsx
 "use client";
@@ -393,7 +393,7 @@ function JobForm({ job, onDone }: { job?: Job; onDone: () => void }) {
 }
 ```
 
-## `src/components/features/candidate-card.tsx`
+## `src/components/features/candidates/candidate-card.tsx`
 
 ```tsx
 import Link from "next/link";

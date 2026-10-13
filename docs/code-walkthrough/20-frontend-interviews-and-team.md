@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { CalendarClock } from "lucide-react";
 import Link from "next/link";
-import { InterviewScheduleDialog } from "@/components/features/interview-schedule-dialog";
+import { InterviewScheduleDialog } from "@/components/features/interviews/interview-schedule-dialog";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
@@ -129,7 +129,7 @@ export default function InterviewsPage() {
 }
 ```
 
-## `src/components/features/interview-schedule-dialog.tsx`
+## `src/components/features/interviews/interview-schedule-dialog.tsx`
 
 ```tsx
 "use client";

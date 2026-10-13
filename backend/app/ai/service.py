@@ -32,7 +32,7 @@ from app.db.common import utcnow
 from app.interviews.models import Interview, InterviewStatus
 from app.jobs.models import Job
 from app.scorecards.models import Scorecard, ScorecardStatus
-from app.scorecards.router import load_ratings
+from app.scorecards.service import load_ratings
 
 logger = logging.getLogger(__name__)
 

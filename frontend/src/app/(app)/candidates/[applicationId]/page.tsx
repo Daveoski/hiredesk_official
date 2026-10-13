@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AIFinalReviewCard, AIScreeningCard } from "@/components/features/ai-assistant-panel";
-import { ScheduleDialog } from "@/components/features/schedule-dialog";
-import { ScorecardDialog } from "@/components/features/scorecard-dialog";
+import { AIFinalReviewCard, AIScreeningCard } from "@/components/features/ai/ai-assistant-panel";
+import { AssignInterviewerDialog } from "@/components/features/candidates/assign-interviewer-dialog";
+import { ScorecardDialog } from "@/components/features/interviews/scorecard-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { StageMenu } from "@/components/shared/stage-menu";
 import { StageThread } from "@/components/shared/stage-thread";
@@ -315,7 +315,7 @@ export default function CandidatePage() {
         </div>
       </div>
 
-      {manager && <ScheduleDialog application={candidate} open={scheduling} onOpenChange={setScheduling} />}
+      {manager && <AssignInterviewerDialog application={candidate} open={scheduling} onOpenChange={setScheduling} />}
       {scoring && (
         <ScorecardDialog interviewId={scoring} candidateName={candidate.full_name} open onOpenChange={() => setScoring(null)} />
       )}

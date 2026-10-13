@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CvDropzone } from "@/components/features/cv-dropzone";
+import { CvDropzone } from "@/components/features/candidates/cv-dropzone";
 import { Logo } from "@/components/layout/logo";
 import { ErrorState } from "@/components/shared/empty-state";
 import { Field } from "@/components/shared/field";

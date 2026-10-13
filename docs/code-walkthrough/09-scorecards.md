@@ -78,6 +78,36 @@ class ApplicationScorecards(BaseModel):
     scorecards: list[ScorecardRead]
 ```
 
+## `backend/app/scorecards/service.py`
+
+```python
+# ── scorecards/service.py: scorecard helpers shared by the router and the AI final review. ──
+
+import uuid
+
+from sqlmodel import Session, col, select
+
+from app.scorecards.models import ScorecardRating
+
+
+# Load the ratings of many scorecards in ONE query (not one query per scorecard),
+# grouped as {scorecard_id: [ratings...]}.
+def load_ratings(db: Session, scorecard_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[ScorecardRating]]:
+    # A DICT COMPREHENSION: start every scorecard with an empty list (so pending ones get []).
+    ratings_by_scorecard: dict[uuid.UUID, list[ScorecardRating]] = {card_id: [] for card_id in scorecard_ids}
+    if scorecard_ids:
+        ratings = db.exec(
+            select(ScorecardRating)
+            .where(col(ScorecardRating.scorecard_id).in_(scorecard_ids))   # WHERE scorecard_id IN (...)
+            .order_by(col(ScorecardRating.criterion))                      # alphabetical criteria
+        ).all()
+        # Put each rating into its scorecard's list.
+        for rating in ratings:
+            ratings_by_scorecard[rating.scorecard_id].append(rating)
+    return ratings_by_scorecard
+    # (Doing one query per scorecard would be the "N+1 queries" problem: slow with many rows.)
+```
+
 ## `backend/app/scorecards/router.py`
 
 ```python
@@ -86,7 +116,7 @@ class ApplicationScorecards(BaseModel):
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from sqlmodel import Session, col, select
+from sqlmodel import col, select
 
 from app.auth.dependencies import CurrentUser, InterviewerUser
 from app.auth.permissions import get_visible_application
@@ -98,6 +128,7 @@ from app.interviews.models import Interview, InterviewStatus
 from app.jobs.models import Job
 from app.scorecards.models import Recommendation, Scorecard, ScorecardRating, ScorecardStatus
 from app.scorecards.schemas import ApplicationScorecards, ScorecardRead, ScorecardSubmit
+from app.scorecards.service import load_ratings   # shared with the AI final review
 from app.users.models import Role, User
 
 # No prefix: the two endpoints live under /interviews/... and /applications/... respectively.
@@ -241,24 +272,6 @@ def hide_scorecards_from_interviewer(rows: list[tuple[Scorecard, Interview]], in
         for card, interview in rows
         if interview.interviewer_id == interviewer.id or card.status == ScorecardStatus.submitted
     ]
-
-
-# Load the ratings of many scorecards in ONE query (not one query per scorecard),
-# grouped as {scorecard_id: [ratings...]}.
-def load_ratings(db: Session, scorecard_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[ScorecardRating]]:
-    # A DICT COMPREHENSION: start every scorecard with an empty list (so pending ones get []).
-    ratings_by_scorecard: dict[uuid.UUID, list[ScorecardRating]] = {card_id: [] for card_id in scorecard_ids}
-    if scorecard_ids:
-        ratings = db.exec(
-            select(ScorecardRating)
-            .where(col(ScorecardRating.scorecard_id).in_(scorecard_ids))   # WHERE scorecard_id IN (...)
-            .order_by(col(ScorecardRating.criterion))                      # alphabetical criteria
-        ).all()
-        # Put each rating into its scorecard's list.
-        for rating in ratings:
-            ratings_by_scorecard[rating.scorecard_id].append(rating)
-    return ratings_by_scorecard
-    # (Doing one query per scorecard would be the "N+1 queries" problem: slow with many rows.)
 
 
 # ── GET /applications/{application_id}/scorecards ──
