@@ -15,16 +15,21 @@ from app.reports.router import router as reports_router
 from app.scorecards.router import router as scorecards_router
 from app.users.router import router as users_router
 
+settings = get_settings()
+
 app = FastAPI(
     title="HireDesk API",
     description="Applicant tracking for small companies. Interactive docs: /docs",
     version="0.1.0",
+    docs_url="/docs" if settings.enable_docs else None,
+    redoc_url="/redoc" if settings.enable_docs else None,
+    openapi_url="/openapi.json" if settings.enable_docs else None,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in get_settings().cors_origins.split(",") if origin.strip()],
-    allow_origin_regex=get_settings().cors_origin_regex,
+    allow_origins=[origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()],
+    allow_origin_regex=settings.cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

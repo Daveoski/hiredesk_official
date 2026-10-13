@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # Optional. Also allow origins matching this regex, e.g. Vercel preview deployments:
     #   https://hiredesk-frontend-.*\.vercel\.app
     cors_origin_regex: str | None = None
+    # Serves /docs, /redoc and /openapi.json. Off by default so production doesn't publish them;
+    # set ENABLE_DOCS=true in your local .env.
+    enable_docs: bool = False
 
     google_auth_enabled: bool = False
     google_client_id: str = ""
