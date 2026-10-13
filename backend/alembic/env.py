@@ -9,6 +9,7 @@ from app.core.config import get_settings
 # Importing the models registers their tables in SQLModel.metadata.
 import app.candidates.models  # noqa: F401
 import app.companies.models  # noqa: F401
+import app.core.rate_limit  # noqa: F401
 import app.interviews.models  # noqa: F401
 import app.jobs.models  # noqa: F401
 import app.scorecards.models  # noqa: F401

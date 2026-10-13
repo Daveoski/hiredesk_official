@@ -10,6 +10,8 @@ os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-characters-long"
 os.environ["RESEND_API_KEY"] = ""  # emails are skipped during tests
 os.environ["SMTP_HOST"] = ""  # even when the developer's .env sends through Gmail
 os.environ["GEMINI_API_KEY"] = ""  # the AI assistant is faked in tests
+os.environ["RATE_LIMIT_ENABLED"] = "false"  # tests log in many times; test_rate_limits.py turns it on
+os.environ["VERCEL"] = "false"
 os.environ["CLOUDINARY_CLOUD_NAME"] = "test-cloud"
 os.environ["CLOUDINARY_API_KEY"] = "test-key"
 os.environ["CLOUDINARY_API_SECRET"] = "test-secret"
@@ -46,6 +48,7 @@ def empty_database():
     with engine.begin() as connection:
         # CASCADE also empties every table that points to companies.
         connection.execute(text("TRUNCATE TABLE companies CASCADE"))
+        connection.execute(text("TRUNCATE TABLE rate_limits"))
 
 
 @pytest.fixture(autouse=True)

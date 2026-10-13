@@ -32,3 +32,6 @@ coverage/
 
 # Vercel CLI project link
 .vercel
+
+# Microsoft Office lock files (created while a document is open)
+~$*

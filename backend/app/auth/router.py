@@ -21,6 +21,7 @@ from app.companies.models import Company
 from app.core.config import get_settings
 from app.core.email import send_email
 from app.core.notifications import label, notify_company_admins
+from app.core.rate_limit import HOUR, MINUTES_15, check, limit_by_ip
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.common import utcnow
 from app.db.session import DbSession
@@ -40,7 +41,7 @@ def _find_open_invitation(db: DbSession, *, token_hash: str | None = None, email
     return db.exec(query.order_by(Invitation.created_at.desc())).first()
 
 
-@router.post("/register", response_model=UserRead, status_code=201)
+@router.post("/register", response_model=UserRead, status_code=201, dependencies=[limit_by_ip("register", 5, HOUR)])
 def register(body: RegisterRequest, db: DbSession):
     company = Company(name=body.company_name)
     db.add(company)
@@ -62,10 +63,13 @@ def register(body: RegisterRequest, db: DbSession):
     return user
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token, dependencies=[limit_by_ip("login", 20, MINUTES_15)])
 def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
     # OAuth2PasswordRequestForm names the email field "username".
-    user = db.exec(select(User).where(User.email == form.username.lower())).first()
+    email = form.username.lower()
+    # Per account as well as per IP, so guesses spread over many IPs still hit a limit.
+    check(f"login:email:{email}", 10, MINUTES_15)
+    user = db.exec(select(User).where(User.email == email)).first()
     if user is None or not verify_password(form.password, user.hashed_password):
         raise HTTPException(401, "Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     if not user.password_login_enabled:
@@ -73,7 +77,7 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
     return Token(access_token=create_access_token(user.id))
 
 
-@router.post("/google", response_model=Token)
+@router.post("/google", response_model=Token, dependencies=[limit_by_ip("google", 20, MINUTES_15)])
 def google_auth(body: GoogleAuthRequest, db: DbSession, background_tasks: BackgroundTasks):
     settings = get_settings()
     if not settings.google_auth_enabled or not settings.google_client_id:
@@ -163,6 +167,8 @@ def change_password(body: ChangePasswordRequest, user: CurrentUser, db: DbSessio
     A Google-only account has no password it knows, so it sets its first one without
     the current password. That also turns on email/password sign-in for it.
     """
+    # A stolen session must not be able to guess the current password.
+    check(f"password:user:{user.id}", 10, MINUTES_15)
     if user.password_login_enabled:
         # 400, not 401: a wrong current password must not look like an expired session.
         if not body.current_password or not verify_password(body.current_password, user.hashed_password):
@@ -198,7 +204,9 @@ def notify_teammate_joined(db: DbSession, background_tasks: BackgroundTasks, use
     )
 
 
-@router.post("/accept-invite", response_model=UserRead, status_code=201)
+@router.post(
+    "/accept-invite", response_model=UserRead, status_code=201, dependencies=[limit_by_ip("accept-invite", 20, MINUTES_15)]
+)
 def accept_invitation(body: AcceptInvitation, db: DbSession, background_tasks: BackgroundTasks):
     invitation = _find_open_invitation(db, token_hash=hashlib.sha256(body.token.encode()).hexdigest())
     if invitation is None:

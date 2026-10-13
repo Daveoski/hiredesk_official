@@ -12,6 +12,7 @@ from app.ai.service import screen_in_background
 from app.candidates.models import Application, StageHistory
 from app.candidates.schemas import ApplicationReceipt
 from app.companies.models import Company
+from app.core import rate_limit
 from app.core.email import send_email
 from app.core.storage import (
     UploadKind,
@@ -76,7 +77,11 @@ class SignedUpload(BaseModel):
     fields: dict[str, str]
 
 
-@router.post("/{job_id}/uploads", response_model=SignedUpload)
+@router.post(
+    "/{job_id}/uploads",
+    response_model=SignedUpload,
+    dependencies=[rate_limit.limit_by_ip("upload", 40, rate_limit.HOUR)],
+)
 def sign_upload(job_id: uuid.UUID, body: UploadRequest, db: DbSession):
     """Let the candidate's browser upload a CV or document straight to file storage.
 
@@ -87,7 +92,12 @@ def sign_upload(job_id: uuid.UUID, body: UploadRequest, db: DbSession):
     return create_signed_upload(body.kind, body.filename, body.size)
 
 
-@router.post("/{job_id}/applications", response_model=ApplicationReceipt, status_code=201)
+@router.post(
+    "/{job_id}/applications",
+    response_model=ApplicationReceipt,
+    status_code=201,
+    dependencies=[rate_limit.limit_by_ip("apply", 10, rate_limit.HOUR)],
+)
 def apply_to_job(
     job_id: uuid.UUID,
     full_name: Annotated[str, Form(min_length=1, max_length=100)],
@@ -158,7 +168,8 @@ def apply_to_job(
     db.add(StageHistory(application_id=application.id, from_stage=None, to_stage=Stage.applied))
     db.commit()
 
-    if ai_enabled():
+    # A flood of applications must not use up the AI quota; past the limit, managers run screening themselves.
+    if ai_enabled() and rate_limit.hit(f"ai-auto:company:{job.company_id}", 100, rate_limit.HOUR):
         # Screen the CV and documents right away, so the hiring manager sees it before the interview stage.
         background_tasks.add_task(screen_in_background, application.id)
     company = db.get(Company, job.company_id)

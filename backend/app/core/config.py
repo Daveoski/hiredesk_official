@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     # Serves /docs, /redoc and /openapi.json. Off by default so production doesn't publish them;
     # set ENABLE_DOCS=true in your local .env.
     enable_docs: bool = False
+    # Limits on login attempts, public applications and AI requests (app/core/rate_limit.py).
+    rate_limit_enabled: bool = True
+    # Vercel sets VERCEL=1 on its servers; then the client's IP is read from x-forwarded-for.
+    vercel: bool = False
 
     google_auth_enabled: bool = False
     google_client_id: str = ""
