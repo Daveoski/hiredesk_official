@@ -10,8 +10,8 @@ from app.auth.dependencies import CurrentUser, HiringManagerUser, ManagerUser
 from app.auth.permissions import get_visible_application, visible_applications
 from app.candidates.models import Application, StageHistory
 from app.candidates.schemas import (
-    ApplicationRead,
     ApplicationAssessment,
+    ApplicationRead,
     DecisionRequest,
     StageHistoryRead,
     StageMove,
