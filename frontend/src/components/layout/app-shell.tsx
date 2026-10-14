@@ -1,10 +1,11 @@
 "use client";
 
-import { Briefcase, CalendarClock, KeyRound, LayoutDashboard, LogOut, Menu, Users, UserCog } from "lucide-react";
+import { Briefcase, CalendarClock, KeyRound, LayoutDashboard, Menu, Users, UserCog } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/layout/logo";
+import { SignOutButton } from "@/components/shared/sign-out-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -34,7 +35,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const items = useNavItems();
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const company = useCompany();
 
   return (
@@ -64,23 +65,15 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
       {user && (
-        <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-          <Avatar name={user.full_name} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{user.full_name}</p>
-            <p className="truncate text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
+        <div className="auth-swap flex flex-col gap-3 rounded-lg border bg-card p-3">
+          <div className="flex items-center gap-3">
+            <Avatar name={user.full_name} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{user.full_name}</p>
+              <p className="truncate text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Log out"
-            onClick={() => {
-              logout();
-              router.push("/login");
-            }}
-          >
-            <LogOut />
-          </Button>
+          <SignOutButton className="w-full justify-center" onSignedOut={() => router.push("/login")} />
         </div>
       )}
     </div>
