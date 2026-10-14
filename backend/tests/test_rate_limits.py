@@ -30,7 +30,7 @@ def test_password_guessing_on_one_account_is_stopped(client, limits_on):
 
 
 def test_many_logins_from_one_ip_are_stopped(client, limits_on):
-    for number in range(20):
+    for number in range(12):
         response = client.post("/auth/login", data={"username": f"user{number}@acme.com", "password": "x"})
         assert response.status_code == 401
     assert client.post("/auth/login", data={"username": "new@acme.com", "password": "x"}).status_code == 429
@@ -63,7 +63,7 @@ def test_limits_can_be_turned_off(client):
 
 def test_client_ip_comes_from_vercel_header_only_on_vercel(client, limits_on, monkeypatch):
     """Off Vercel, a client could write any x-forwarded-for, so it must not get a fresh limit by changing it."""
-    for number in range(20):
+    for number in range(12):
         client.post("/auth/login", data={"username": f"u{number}@acme.com", "password": "x"}, headers={"x-forwarded-for": f"10.0.0.{number}"})
     assert client.post("/auth/login", data={"username": "z@acme.com", "password": "x"}).status_code == 429
 
