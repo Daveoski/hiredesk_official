@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* `dark:` utilities follow the class the theme script puts on <html>, not only the device setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Design tokens. Colors are shadcn-style variables so every component reads from one place. */
 :root {
   --background: #f5f6fb;
@@ -26,6 +29,31 @@
   --stage-offer: #d98a0b;
   --stage-hired: #12966a;
   --stage-rejected: #d62f56;
+}
+
+/* Dark theme: the same roles, re-tuned so text keeps its contrast on deep indigo surfaces. */
+.dark {
+  --background: #0d0f1e;
+  --foreground: #e7e8f6;
+  --card: #151830;
+  --card-foreground: #e7e8f6;
+  --muted: #1c2040;
+  --muted-foreground: #9ca1c4;
+  --border: #262a4b;
+  --input: #343a63;
+  --primary: #6d69ff;
+  --primary-foreground: #ffffff;
+  --accent: #23265a;
+  --accent-foreground: #c9caff;
+  --destructive: #f2587b;
+  --ring: #8a87ff;
+
+  --stage-applied: #9599b5;
+  --stage-screen: #3fb0f0;
+  --stage-interview: #a074ff;
+  --stage-offer: #f2a83a;
+  --stage-hired: #34c48f;
+  --stage-rejected: #f2587b;
 }
 
 @theme inline {
@@ -103,6 +131,14 @@
   --status-critical: #c8264c;
   --status-critical-wash: #fde7ec;
 }
+.dark {
+  --status-good: #3ccf98;
+  --status-good-wash: #0f2a22;
+  --status-warning: #f2b24d;
+  --status-warning-wash: #2e2410;
+  --status-critical: #f46a8c;
+  --status-critical-wash: #34141f;
+}
 
 /* The greeting band: a quiet indigo wash with a soft glow, so the page has one focal point. */
 .dash-hero {
@@ -112,6 +148,15 @@
     radial-gradient(120% 140% at 100% 0%, rgb(58 54 224 / 16%) 0%, transparent 55%),
     radial-gradient(90% 120% at 0% 100%, rgb(122 63 224 / 9%) 0%, transparent 60%),
     linear-gradient(180deg, #ffffff 0%, #f7f7ff 100%);
+}
+.dark .dash-hero {
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(109 105 255 / 22%) 0%, transparent 55%),
+    radial-gradient(90% 120% at 0% 100%, rgb(160 116 255 / 12%) 0%, transparent 60%),
+    linear-gradient(180deg, #181b36 0%, #131628 100%);
+}
+.dark .dash-hero::after {
+  background-image: radial-gradient(rgb(138 135 255 / 16%) 1px, transparent 1px);
 }
 .dash-hero::after {
   position: absolute;
@@ -149,12 +194,34 @@
   .dash-grow { animation: none; }
 }
 
+/* Homepage palette. The photo hero and the forest bands are dark in both themes; these cover the light sections. */
 .home-page {
   --home-ink: #17201d;
   --home-paper: #f7f8f5;
+  --home-mist: #e9eeea;
+  --home-line: #d7ddd7;
+  --home-body: #5d6761;
+  --home-icon: #52665a;
   --home-forest: #202a25;
   --home-coral: #a84c37;
   --home-lime: #e6f18f;
+  --home-stage-line: #aebbb0;
+  --home-stage-dot: #738579;
+  --home-stage-text: #526058;
+  --home-card-hover: #b9c4bb;
+}
+.dark .home-page {
+  --home-ink: #eef2ec;
+  --home-paper: #0f1512;
+  --home-mist: #151d19;
+  --home-line: #26312b;
+  --home-body: #a4afa8;
+  --home-icon: #c3d0c7;
+  --home-coral: #ec9a82;
+  --home-stage-line: #3a4740;
+  --home-stage-dot: #8a9b90;
+  --home-stage-text: #a4afa8;
+  --home-card-hover: #3c4a42;
 }
 
 
@@ -190,7 +257,7 @@
   min-width: 0;
   flex-direction: column;
   gap: 0.8rem;
-  color: #526058;
+  color: var(--home-stage-text);
   font-size: 0.8rem;
 }
 
@@ -200,7 +267,7 @@
   right: 0;
   left: 0.9rem;
   height: 1px;
-  background: #aebbb0;
+  background: var(--home-stage-line);
   content: "";
 }
 
@@ -209,9 +276,9 @@
   z-index: 1;
   width: 0.85rem;
   height: 0.85rem;
-  border: 2px solid #738579;
+  border: 2px solid var(--home-stage-dot);
   border-radius: 50%;
-  background: #e9eeea;
+  background: var(--home-paper);
 }
 
 .home-stage-dot-final {
@@ -262,7 +329,7 @@
 }
 .hero-control:hover {
   background: #fff;
-  color: var(--home-ink);
+  color: #17201d;
   transform: translateY(-1px);
 }
 
@@ -380,7 +447,7 @@
 .feature-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 22px 40px -24px rgb(23 32 29 / 45%);
-  border-color: #b9c4bb;
+  border-color: var(--home-card-hover);
 }
 .role-card:hover {
   transform: translateY(-4px);
@@ -417,6 +484,27 @@
   background: var(--home-lime);
 }
 .scroll-reveal.is-visible .home-stage-dot-final { transform: scale(1.25); }
+
+/* ---- Theme switching ---- */
+
+/* With View Transitions the new theme is revealed in a circle (see lib/theme.ts); keep the old frame still. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Fallback for browsers without View Transitions: fade colours for a moment. */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    fill 300ms ease !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .thread-draw,

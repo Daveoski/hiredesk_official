@@ -124,7 +124,7 @@ function PipelinePreview() {
 
 export default function Home() {
   return (
-    <main className="home-page min-h-screen bg-[#f7f8f5] text-[#17201d]">
+    <main className="home-page min-h-screen bg-(--home-paper) text-(--home-ink)">
       <SiteHeader />
 
       <section className="home-hero relative isolate flex min-h-svh flex-col justify-end overflow-hidden bg-[#17201d] text-white sm:min-h-215">
@@ -160,7 +160,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="overflow-hidden border-b border-[#d7ddd7] bg-[#e6f18f] py-4" aria-label="What HireDesk includes">
+      <div className="overflow-hidden border-b border-(--home-line) bg-[#e6f18f] py-4" aria-label="What HireDesk includes">
         <div className="marquee flex w-max gap-10 text-sm font-semibold uppercase tracking-[0.14em] text-[#17201d]">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex gap-10" aria-hidden={copy === 1}>
@@ -174,29 +174,29 @@ export default function Home() {
         </div>
       </div>
 
-      <section id="workflow" className="scroll-mt-20 bg-[#f7f8f5]">
+      <section id="workflow" className="scroll-mt-20 bg-(--home-paper)">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24 lg:px-12 lg:py-28">
           <ScrollReveal className="max-w-md self-start lg:sticky lg:top-24">
-            <p className="text-xs font-semibold uppercase text-[#a84c37]">A clear line from start to decision</p>
+            <p className="text-xs font-semibold uppercase text-(--home-coral)">A clear line from start to decision</p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-5xl">One process. The right people at every step.</h2>
-            <p className="mt-5 text-base leading-7 text-[#5d6761]">
+            <p className="mt-5 text-base leading-7 text-(--home-body)">
               Keep the hiring journey connected without blurring who owns each decision.
             </p>
           </ScrollReveal>
 
-          <div className="divide-y divide-[#d7ddd7] border-y border-[#d7ddd7]">
+          <div className="divide-y divide-(--home-line) border-y border-(--home-line)">
             {workflow.map(({ icon: Icon, number, title, text }, index) => (
               <ScrollReveal key={number} delay={index * 90}>
                 <article className="workflow-row group grid gap-5 py-7 sm:grid-cols-[56px_1fr] sm:gap-7 sm:py-9">
                   <div className="flex items-center gap-3 sm:block">
-                    <span className="font-display text-sm text-[#a84c37]">{number}</span>
-                    <span className="mt-0 inline-flex size-10 items-center justify-center rounded-full bg-[#e9eeea] text-[#52665a] transition duration-300 group-hover:bg-[#17201d] group-hover:text-[#e6f18f] sm:mt-4">
+                    <span className="font-display text-sm text-(--home-coral)">{number}</span>
+                    <span className="mt-0 inline-flex size-10 items-center justify-center rounded-full bg-(--home-mist) text-(--home-icon) transition duration-300 group-hover:bg-[#17201d] dark:group-hover:bg-[#e6f18f] dark:group-hover:text-(--home-ink) group-hover:text-[#e6f18f] sm:mt-4">
                       <Icon className="size-5" strokeWidth={1.6} />
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-display text-2xl font-semibold transition-colors group-hover:text-[#a84c37] sm:text-3xl">{title}</h3>
-                    <p className="mt-3 max-w-2xl text-base leading-7 text-[#5d6761]">{text}</p>
+                    <h3 className="font-display text-2xl font-semibold transition-colors group-hover:text-(--home-coral) sm:text-3xl">{title}</h3>
+                    <p className="mt-3 max-w-2xl text-base leading-7 text-(--home-body)">{text}</p>
                   </div>
                 </article>
               </ScrollReveal>
@@ -205,12 +205,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="features" className="scroll-mt-20 bg-[#e9eeea]">
+      <section id="features" className="scroll-mt-20 bg-(--home-mist)">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
           <ScrollReveal className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase text-[#a84c37]">Everything in one workspace</p>
+            <p className="text-xs font-semibold uppercase text-(--home-coral)">Everything in one workspace</p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-5xl">Built for the way your team really hires.</h2>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-[#5d6761]">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-(--home-body)">
               From the job advert to the offer, each step is a tool your team can use today.
             </p>
           </ScrollReveal>
@@ -221,8 +221,8 @@ export default function Home() {
                 <article
                   className={
                     wide
-                      ? "feature-card group h-full rounded-2xl bg-[#17201d] p-7 text-white"
-                      : "feature-card group h-full rounded-2xl border border-[#d7ddd7] bg-[#f7f8f5] p-6"
+                      ? "feature-card group h-full rounded-2xl border border-transparent bg-[#17201d] p-7 text-white dark:border-white/10 dark:bg-[#1c2722]"
+                      : "feature-card group h-full rounded-2xl border border-(--home-line) bg-(--home-paper) p-6"
                   }
                 >
                   <span
@@ -235,7 +235,7 @@ export default function Home() {
                     <Icon className="size-5" strokeWidth={1.8} />
                   </span>
                   <h3 className={wide ? "mt-6 font-display text-2xl font-semibold sm:text-3xl" : "mt-5 font-display text-xl font-semibold"}>{title}</h3>
-                  <p className={wide ? "mt-3 max-w-lg text-base leading-7 text-white/70" : "mt-2.5 text-sm leading-6 text-[#5d6761]"}>{text}</p>
+                  <p className={wide ? "mt-3 max-w-lg text-base leading-7 text-white/70" : "mt-2.5 text-sm leading-6 text-(--home-body)"}>{text}</p>
                 </article>
               </ScrollReveal>
             ))}
@@ -243,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="teams" className="scroll-mt-20 bg-[#202a25] text-white">
+      <section id="teams" className="scroll-mt-20 bg-[#202a25] text-white dark:border-y dark:border-white/5 dark:bg-[#141c18]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
           <ScrollReveal className="max-w-3xl">
             <p className="text-xs font-semibold uppercase text-[#e6f18f]">Made for distinct responsibilities</p>
@@ -267,12 +267,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#f7f8f5]">
+      <section className="bg-(--home-paper)">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20 lg:px-12 lg:py-24">
           <ScrollReveal className="max-w-sm">
-            <p className="text-xs font-semibold uppercase text-[#a84c37]">A considered candidate journey</p>
+            <p className="text-xs font-semibold uppercase text-(--home-coral)">A considered candidate journey</p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight">Every handoff stays in view.</h2>
-            <p className="mt-5 text-base leading-7 text-[#5d6761]">
+            <p className="mt-5 text-base leading-7 text-(--home-body)">
               From the first application to a final outcome, the team can follow progress through the stages configured for each role.
             </p>
           </ScrollReveal>
@@ -286,8 +286,8 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div className="mt-8 flex items-start gap-3 border-t border-[#cbd3cc] pt-5 text-sm leading-6 text-[#5d6761]">
-              <Check className="mt-1 size-4 shrink-0 text-[#a84c37]" />
+            <div className="mt-8 flex items-start gap-3 border-t border-(--home-line) pt-5 text-sm leading-6 text-(--home-body)">
+              <Check className="mt-1 size-4 shrink-0 text-(--home-coral)" />
               Interview scorecards support ratings and recommendations; the hiring manager makes the final call.
             </div>
           </ScrollReveal>
@@ -296,7 +296,7 @@ export default function Home() {
 
       <section className="px-5 pb-20 sm:px-8 lg:px-12">
         <ScrollReveal className="mx-auto max-w-7xl">
-          <div className="cta-band relative overflow-hidden rounded-3xl bg-[#17201d] px-7 py-14 text-white sm:px-12 lg:px-16 lg:py-20">
+          <div className="cta-band relative overflow-hidden rounded-3xl border border-transparent bg-[#17201d] dark:border-white/10 dark:bg-[#18221d] px-7 py-14 text-white sm:px-12 lg:px-16 lg:py-20">
             <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
                 <p className="text-xs font-semibold uppercase text-[#e6f18f]">Make room for better decisions</p>
@@ -316,14 +316,14 @@ export default function Home() {
         </ScrollReveal>
       </section>
 
-      <footer className="border-t border-[#d7ddd7] bg-[#f7f8f5]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-10 text-sm text-[#5d6761] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
-          <Link href="/" className="font-display text-xl font-semibold text-[#17201d]">HireDesk<span className="text-[#a84c37]">.</span></Link>
+      <footer className="border-t border-(--home-line) bg-(--home-paper)">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-10 text-sm text-(--home-body) sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
+          <Link href="/" className="font-display text-xl font-semibold text-(--home-ink)">HireDesk<span className="text-(--home-coral)">.</span></Link>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-7">
-            <a className="inline-flex items-center gap-2 hover:text-[#17201d]" href="mailto:okechukwuorjionuchie@gmail.com">
+            <a className="inline-flex items-center gap-2 hover:text-(--home-ink)" href="mailto:okechukwuorjionuchie@gmail.com">
               <Mail className="size-4" /> okechukwuorjionuchie@gmail.com
             </a>
-            <a className="inline-flex items-center gap-2 hover:text-[#17201d]" href="tel:+2349031707946">
+            <a className="inline-flex items-center gap-2 hover:text-(--home-ink)" href="tel:+2349031707946">
               <Phone className="size-4" /> +2349031707946
             </a>
           </div>

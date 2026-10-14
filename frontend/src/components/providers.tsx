@@ -3,12 +3,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
+import { useTheme } from "@/lib/theme";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { queries: { staleTime: 15_000, retry: false, refetchOnWindowFocus: false } } }),
   );
+  const { resolved } = useTheme();
 
   // Cached data belongs to whoever was signed in. When the account changes (log out,
   // or someone else logs in on this browser), drop it so nobody sees the previous user's data.
@@ -23,7 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="bottom-right" richColors theme={resolved} />
     </QueryClientProvider>
   );
 }

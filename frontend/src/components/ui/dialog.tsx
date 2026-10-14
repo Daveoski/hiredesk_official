@@ -22,7 +22,7 @@ export function DialogContent({
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[rgba(20,22,43,0.45)] p-4 data-[state=open]:animate-in data-[state=open]:fade-in-0">
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[rgba(20,22,43,0.45)] p-4 dark:bg-[rgba(4,5,12,0.7)] data-[state=open]:animate-in data-[state=open]:fade-in-0">
         <DialogPrimitive.Content
           className={cn(
             "relative w-full max-w-lg rounded-lg border bg-card p-5 shadow-xl sm:p-6 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",

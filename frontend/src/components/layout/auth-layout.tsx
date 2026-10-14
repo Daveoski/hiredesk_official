@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { StageThread } from "@/components/shared/stage-thread";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 // Shared frame for account forms: the form on the left, the product idea on the right.
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
@@ -11,9 +12,12 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
       <div className="flex flex-col px-6 py-8 sm:px-12">
         <div className="flex items-center justify-between gap-4">
           <Logo href="/" />
-          <Link href="/" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
-            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" /> Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" /> Home
+            </Link>
+          </div>
         </div>
         <div className="auth-swap mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">
           <h1 className="text-3xl font-bold">{title}</h1>

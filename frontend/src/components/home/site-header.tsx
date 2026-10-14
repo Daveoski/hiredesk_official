@@ -4,6 +4,7 @@ import { ArrowUpRight, LayoutDashboard, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SignOutButton } from "@/components/shared/sign-out-button";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { HOME, ROLE_LABEL } from "@/lib/constants";
 import { cn, initials } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
@@ -115,7 +116,8 @@ export function SiteHeader() {
           ))}
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle tone="dark" />
           <AuthActions />
         </div>
 
@@ -148,7 +150,11 @@ export function SiteHeader() {
                 {label}
               </a>
             ))}
-            <div className="mt-3">
+            <div className="mt-3 flex items-center justify-between gap-3 px-2">
+              <span className="text-sm text-white/70">Theme</span>
+              <ThemeToggle tone="dark" />
+            </div>
+            <div className="mt-4">
               <AuthActions onNavigate={() => setMenuOpen(false)} />
             </div>
           </div>
