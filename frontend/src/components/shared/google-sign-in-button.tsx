@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/lib/theme";
 
 type GoogleCredentialResponse = { credential?: string };
 type GoogleIdentity = {
@@ -35,6 +36,7 @@ export function GoogleSignInButton({
   const buttonRef = useRef<HTMLDivElement>(null);
   const onCredentialRef = useRef(onCredential);
   const [message, setMessage] = useState("");
+  const { resolved } = useTheme();
 
   onCredentialRef.current = onCredential;
 
@@ -51,7 +53,8 @@ export function GoogleSignInButton({
         },
       });
       window.google.accounts.id.renderButton(buttonRef.current, {
-        theme: "outline",
+        // Google draws the button itself, so redraw it when the theme changes.
+        theme: resolved === "dark" ? "filled_black" : "outline",
         size: "large",
         width: Math.max(250, Math.floor(buttonRef.current.getBoundingClientRect().width)),
       });
@@ -76,7 +79,7 @@ export function GoogleSignInButton({
       cancelled = true;
       existingScript?.removeEventListener("load", renderGoogleButton);
     };
-  }, [clientId]);
+  }, [clientId, resolved]);
 
   if (!clientId) {
     return (
@@ -98,7 +101,8 @@ export function GoogleSignInButton({
 
   return (
     <div className="mb-4">
-      <div ref={buttonRef} className={disabled ? "pointer-events-none opacity-50" : "min-h-10"} />
+      {/* Google's frame paints an opaque white box when the page is in dark colour-scheme. */}
+      <div ref={buttonRef} style={{ colorScheme: "light" }} className={disabled ? "pointer-events-none opacity-50" : "min-h-10"} />
       {message && <p role="status" className="mt-2 text-xs leading-5 text-muted-foreground">{message}</p>}
     </div>
   );

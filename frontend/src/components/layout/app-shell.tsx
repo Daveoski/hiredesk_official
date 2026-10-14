@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/layout/logo";
 import { SignOutButton } from "@/components/shared/sign-out-button";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -64,6 +65,10 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+      <div className="flex items-center justify-between gap-3 px-2">
+        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Theme</span>
+        <ThemeToggle />
+      </div>
       {user && (
         <div className="auth-swap flex flex-col gap-3 rounded-lg border bg-card p-3">
           <div className="flex items-center gap-3">
