@@ -63,7 +63,7 @@ def register(body: RegisterRequest, db: DbSession):
     return user
 
 
-@router.post("/login", response_model=Token, dependencies=[limit_by_ip("login", 20, MINUTES_15)])
+@router.post("/login", response_model=Token, dependencies=[limit_by_ip("login", 5, MINUTES_15)])
 def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
     # OAuth2PasswordRequestForm names the email field "username".
     email = form.username.lower()
@@ -77,7 +77,7 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
     return Token(access_token=create_access_token(user.id))
 
 
-@router.post("/google", response_model=Token, dependencies=[limit_by_ip("google", 20, MINUTES_15)])
+@router.post("/google", response_model=Token, dependencies=[limit_by_ip("google", 5, MINUTES_15)])
 def google_auth(body: GoogleAuthRequest, db: DbSession, background_tasks: BackgroundTasks):
     settings = get_settings()
     if not settings.google_auth_enabled or not settings.google_client_id:
