@@ -92,3 +92,7 @@ python -m app.reports.send_progress_reports --days 1   # a daily report
 For example with cron (`0 8 * * 1` for Mondays at 8:00) or Windows Task Scheduler (`schtasks /Create /SC WEEKLY /D MON /ST 08:00 ...`).
 
 Set production credentials in the deployment platform's secret/environment configuration. Do not commit `.env` files, API keys, provider secrets, or JWT signing keys.
+
+## License
+
+[MIT](LICENSE)
