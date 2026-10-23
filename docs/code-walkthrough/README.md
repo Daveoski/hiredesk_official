@@ -1,6 +1,6 @@
-# HireDesk: line-by-line code walkthrough
+# HirePlume: line-by-line code walkthrough
 
-Every source file in HireDesk, copied with explanation comments written inside the code. Each block can be copied as it is: the comments don't change what the code does.
+Every source file in HirePlume, copied with explanation comments written inside the code. Each block can be copied as it is: the comments don't change what the code does.
 
 Read in order: the backend follows a request from the entry point to the database, and the frontend follows a user from signing in to each page.
 
@@ -44,4 +44,4 @@ Read in order: the backend follows a request from the entry point to the databas
 
 Where a file repeats the same pattern many times (some CSS in `globals.css`, the `register` page's form fields, and parts of migration 0002's `downgrade()`), the repetition is summarised and marked with `...`. Everything else is complete.
 
-For the big picture (what the app does, the PRD, SRS and ERD, a glossary, deployment history and practice questions), see [../HireDesk_Code_Guide.docx](../HireDesk_Code_Guide.docx).
+For the big picture (what the app does, the PRD, SRS and ERD, a glossary, deployment history and practice questions), see [../HirePlume_Code_Guide.docx](../HirePlume_Code_Guide.docx).

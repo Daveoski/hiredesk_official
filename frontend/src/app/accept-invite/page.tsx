@@ -80,7 +80,7 @@ function AcceptInviteForm() {
 
   return (
     <AuthLayout
-      title="Join your HireDesk team"
+      title="Join your HirePlume team"
       subtitle="Continue with the Google account your invitation was sent to, or choose a password."
     >
       {token && (

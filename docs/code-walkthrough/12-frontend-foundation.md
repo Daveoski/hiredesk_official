@@ -31,8 +31,8 @@ const body = Figtree({ subsets: ["latin"], variable: "--font-figtree" });       
 
 // The page <title> and <meta description> (shown in browser tabs and Google results).
 export const metadata: Metadata = {
-  title: "HireDesk | Smarter Hiring for Modern Teams",
-  description: "HireDesk helps companies review applicants, coordinate interviews, and make confident hiring decisions with a clear, collaborative workflow.",
+  title: "HirePlume | Smarter Hiring for Modern Teams",
+  description: "HirePlume helps companies review applicants, coordinate interviews, and make confident hiring decisions with a clear, collaborative workflow.",
 };
 
 // The ROOT layout: Next.js wraps EVERY page in this. "children" = the page being shown.
@@ -232,7 +232,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, user: null }),
     }),
     {
-      name: "hiredesk-auth",       // the key in localStorage
+      name: AUTH_STORAGE_KEY,      // "hireplume-auth", the key in localStorage
       // Save only these two fields (functions can't be saved).
       partialize: (state) => ({ token: state.token, user: state.user }),
     },

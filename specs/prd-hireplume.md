@@ -1,13 +1,13 @@
-# HireDesk Product Requirements Document
+# HirePlume Product Requirements Document
 
 - **Type:** project
 - **Status:** Draft, as-built baseline
 - **Owner:** TBD
 - **Date:** 2026-10-09
-- **Links:** [Software Requirements Specification](srs-hiredesk.md); [ERD and Architecture](../docs/architecture/hiredesk-erd-and-architecture.md)
+- **Links:** [Software Requirements Specification](srs-hireplume.md); [ERD and Architecture](../docs/architecture/hireplume-erd-and-architecture.md)
 
 ## Summary
-HireDesk is a multi-company applicant tracking workspace for managing job posts, candidate applications, interviewer coordination, assessments, and final hiring decisions. This document describes the product supported by the current repository and highlights decisions that remain open.
+HirePlume is a multi-company applicant tracking workspace for managing job posts, candidate applications, interviewer coordination, assessments, and final hiring decisions. This document describes the product supported by the current repository and highlights decisions that remain open.
 
 ## Problem and Goals
 Hiring teams need one place to review applicants, coordinate interviews, record assessment evidence, and communicate outcomes. Candidate information and hiring decisions should be available to the right company roles without exposing them to every teammate.
@@ -23,7 +23,7 @@ Product goals:
 
 | User | Primary use cases |
 |---|---|
-| Candidate | View an open job, submit an application, receive confirmation and stage/interview outcome emails. Candidates do not have HireDesk accounts. |
+| Candidate | View an open job, submit an application, receive confirmation and stage/interview outcome emails. Candidates do not have HirePlume accounts. |
 | Company admin | Create the company workspace, invite hiring managers/interviewers, view company jobs and team members, receive completed assessment and successful-hire notifications. |
 | Hiring manager | Create and manage jobs, review candidates for assigned jobs, move applications through stages, record qualification assessments, assign interviewers, and make final decisions. |
 | Interviewer | View assigned interviews and candidates, schedule a virtual or in-person interview, submit a scorecard, and view other submitted feedback only after submitting their own scorecards for that candidate. |

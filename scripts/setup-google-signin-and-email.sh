@@ -191,23 +191,23 @@ ENV_FILE="$ROOT/backend/.env"
 PY="$ROOT/.venv/Scripts/python"
 [[ -x "$PY" ]] || PY="$ROOT/.venv/bin/python"
 
-SITE="https://hiredesk-app.vercel.app"
-API="https://hiredesk-api.vercel.app"
+SITE="https://hireplume-app.vercel.app"
+API="https://hireplume-api.vercel.app"
 VERCEL_TEAM="team_hnP2WSbOl0854JZfG5T1v0Hm"
-VERCEL_API_PROJECT="prj_ToI1fqITN7tc5oTB2Oul0WXkEe6a"   # hiredesk-api
+VERCEL_API_PROJECT="prj_ToI1fqITN7tc5oTB2Oul0WXkEe6a"   # hireplume-api
 
 # run_py runs a Python snippet from backend/, so it can import the app and read backend/.env.
 run_py() { (cd "$ROOT/backend" && "$PY" -c "$1"); }
 
 TOTAL_STAGES=7
 
-banner "HireDesk: Google sign-in + invitation emails"
+banner "HirePlume: Google sign-in + invitation emails"
 
 # ── 1 ─────────────────────────────────────────────────────────────────────
 stage "Google sign-in: allow the live site"
 say "Google only shows sign-in on websites listed on your OAuth client."
 open_url "https://console.cloud.google.com/apis/credentials"
-step "Sign in as the Google account that owns the HireDesk project, and pick that project (top bar)."
+step "Sign in as the Google account that owns the HirePlume project, and pick that project (top bar)."
 step "Under 'OAuth 2.0 Client IDs', click the client whose ID starts with 285740906915-84cqi4oq."
 step "Under 'Authorized JavaScript origins', click '+ Add URI' and paste exactly:"
 say "      ${BOLD}${SITE}${RESET}"
@@ -223,7 +223,7 @@ note "  (Older console layout: APIs & Services → OAuth consent screen.)"
 step "If 'Publishing status' says Testing, either:"
 say  "    a) click 'Publish app' → Confirm, so any Google account can sign in, or"
 say  "    b) under 'Test users', '+ Add users' with each person's Gmail address."
-note "  HireDesk only asks for name and email, so publishing needs no Google review."
+note "  HirePlume only asks for name and email, so publishing needs no Google review."
 pause "Press Enter when done."
 
 # ── 3 ─────────────────────────────────────────────────────────────────────
@@ -235,9 +235,9 @@ step "If it says 'On', you're done. Otherwise click 'Turn on' and follow Google'
 pause "Press Enter once 2-Step Verification is on."
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
-stage "Gmail: app password for HireDesk"
+stage "Gmail: app password for HirePlume"
 open_url "https://myaccount.google.com/apppasswords"
-step "App name: type HireDesk, then click 'Create'."
+step "App name: type HirePlume, then click 'Create'."
 step "Google shows a 16-letter password in a yellow box. Copy it (spaces don't matter)."
 note "  You only see it once. If you lose it, delete it there and create a new one."
 ask SMTP_USERNAME "Gmail address that sends the emails (e.g. you@gmail.com):"
@@ -268,7 +268,7 @@ if TEST_EMAIL_TO="$TEST_EMAIL_TO" SITE="$SITE" run_py "
 import os, sys
 from app.core.email import send_email
 from app.users.router import invitation_email
-subject, text, html = invitation_email('there', 'HireDesk setup', 'your company', 'interviewer', os.environ['SITE'] + '/login')
+subject, text, html = invitation_email('there', 'HirePlume setup', 'your company', 'interviewer', os.environ['SITE'] + '/login')
 sys.exit(0 if send_email(to=os.environ['TEST_EMAIL_TO'], subject='[Test] ' + subject, text=text, html=html) else 1)
 "; then
   printf '  %s✓ Sent.%s Check %s (and its Spam folder) for the "Join the team" email.\n' "$GREEN" "$RESET" "$TEST_EMAIL_TO"
@@ -281,7 +281,7 @@ pause "Press Enter once you've seen the email (or to continue anyway)."
 
 # ── 6 ─────────────────────────────────────────────────────────────────────
 stage "Live site: save the Gmail settings on Vercel"
-say "This stores the four SMTP settings on the Vercel project hiredesk-api and redeploys it,"
+say "This stores the four SMTP settings on the Vercel project hireplume-api and redeploys it,"
 say "so invitations sent from ${SITE} go out through Gmail."
 if confirm "Save to Vercel and redeploy the live backend now?"; then
   if SMTP_USERNAME="$SMTP_USERNAME" SMTP_PASSWORD="$SMTP_PASSWORD" TEAM="$VERCEL_TEAM" P="$VERCEL_API_PROJECT" API="$API" run_py "
@@ -300,7 +300,7 @@ for key, value in values.items():
     print('  saved', key if r.status_code < 300 else key + ' FAILED: ' + r.text[:120])
     if r.status_code >= 300: sys.exit(1)
 repo_id = api.get(f'/v9/projects/{P}').json()['link']['repoId']
-d = api.post('/v13/deployments', json={'name': 'hiredesk-api', 'project': P, 'target': 'production',
+d = api.post('/v13/deployments', json={'name': 'hireplume-api', 'project': P, 'target': 'production',
              'gitSource': {'type': 'github', 'repoId': repo_id, 'ref': 'main'}}).json()
 print('  redeploying (about a minute)...', flush=True)
 for _ in range(90):
@@ -314,10 +314,10 @@ sys.exit(0 if ok else 1)
     printf '  %s✓ Live backend updated and healthy.%s\n' "$GREEN" "$RESET"
   else
     warn "Saving or redeploying failed. Is the Vercel CLI logged in? (npx vercel login)"
-    SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hiredesk-api and redeploy")
+    SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hireplume-api and redeploy")
   fi
 else
-  SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hiredesk-api and redeploy")
+  SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hireplume-api and redeploy")
 fi
 # Lets the Monday progress-report workflow send through Gmail too (needs the gh CLI).
 set_secret SMTP_USERNAME "$SMTP_USERNAME"

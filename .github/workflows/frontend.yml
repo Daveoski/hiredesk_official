@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_API_URL: https://hiredesk-api.vercel.app
+      NEXT_PUBLIC_API_URL: https://hireplume-api.vercel.app
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4

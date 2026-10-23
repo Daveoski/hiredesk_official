@@ -1,16 +1,16 @@
-# HireDesk Software Requirements Specification
+# HirePlume Software Requirements Specification
 
 - **Type:** project specification
 - **Status:** Draft, as-built baseline
 - **Owner:** TBD
 - **Date:** 2026-10-09
-- **Links:** [Product Requirements Document](prd-hiredesk.md); [ERD and Architecture](../docs/architecture/hiredesk-erd-and-architecture.md)
+- **Links:** [Product Requirements Document](prd-hireplume.md); [ERD and Architecture](../docs/architecture/hireplume-erd-and-architecture.md)
 
 ## 1. Purpose
-This SRS records observable system behavior and constraints for the current HireDesk implementation. Requirements marked **Implemented** reflect the inspected source and tests; **Configuration-dependent** requirements need external credentials/services; **Open** items require a product decision or additional implementation.
+This SRS records observable system behavior and constraints for the current HirePlume implementation. Requirements marked **Implemented** reflect the inspected source and tests; **Configuration-dependent** requirements need external credentials/services; **Open** items require a product decision or additional implementation.
 
 ## 2. System Context
-HireDesk consists of a Next.js web application and a FastAPI JSON/form API backed by PostgreSQL. The API persists company, user, job, application, interview, scorecard, and invitation data. Cloudinary stores candidate documents; Resend sends transactional email; Google Identity Services provides optional login/registration when configured.
+HirePlume consists of a Next.js web application and a FastAPI JSON/form API backed by PostgreSQL. The API persists company, user, job, application, interview, scorecard, and invitation data. Cloudinary stores candidate documents; Resend sends transactional email; Google Identity Services provides optional login/registration when configured.
 
 Candidates are external, unauthenticated users. Company users authenticate with email/password or Google and receive JWT bearer tokens for protected API operations.
 

@@ -6,7 +6,7 @@
 #   SMTP_USERNAME, SMTP_PASSWORD  Gmail address + app password that send the emails
 #                               (scripts/setup-google-signin-and-email.sh sets these), or
 #   RESEND_API_KEY              send through Resend instead
-#   EMAIL_FROM                  optional, e.g. "HireDesk <reports@yourdomain.com>"
+#   EMAIL_FROM                  optional, e.g. "HirePlume <reports@yourdomain.com>"
 #   FRONTEND_BASE_URL           optional, the live site, for the dashboard link in the email
 name: Progress reports
 
@@ -32,7 +32,7 @@ jobs:
       SMTP_HOST: ${{ secrets.SMTP_USERNAME && 'smtp.gmail.com' || '' }}
       SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HireDesk <onboarding@resend.dev>' }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HirePlume <onboarding@resend.dev>' }}
       FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL || 'http://localhost:3000' }}
       # Settings validation needs a value; the report never signs tokens.
       JWT_SECRET: reports-only-placeholder-secret-0123456789

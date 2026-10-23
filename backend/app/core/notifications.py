@@ -29,7 +29,7 @@ def notify_company_admins(
     dashboard_url = f"{get_settings().frontend_base_url.rstrip('/')}/overview"
     body = f"{text.rstrip()}\n\nSee the full progress on your dashboard: {dashboard_url}\n"
     for email in admin_emails(db, company_id):
-        background_tasks.add_task(send_email, to=email, subject=f"[HireDesk] {subject}", text=body)
+        background_tasks.add_task(send_email, to=email, subject=f"[HirePlume] {subject}", text=body)
 
 
 def label(value: str) -> str:

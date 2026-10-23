@@ -249,7 +249,7 @@ def sign_upload(job_id: uuid.UUID, body: UploadRequest, db: DbSession):
     Used by the apply page so large files never pass through the API (hosted functions
     limit request bodies to 4.5 MB). Only open jobs hand out upload signatures.
     """
-    # Only for open jobs, so random visitors can't use HireDesk as free file hosting.
+    # Only for open jobs, so random visitors can't use HirePlume as free file hosting.
     get_open_job(db, job_id)
     return create_signed_upload(body.kind, body.filename, body.size)
 
@@ -413,8 +413,8 @@ MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
 # A type that only allows the two strings "cv" or "document".
 UploadKind = Literal["cv", "document"]
 # Cloudinary folders (part of each file's id).
-CV_FOLDER = "hiredesk/cvs"
-DOCUMENT_FOLDER = "hiredesk/application-documents"
+CV_FOLDER = "hireplume/cvs"
+DOCUMENT_FOLDER = "hireplume/application-documents"
 
 # kind -> (folder, allowed extensions, max bytes, size error, type error)
 # One table of rules instead of repeating if/else for CVs and documents everywhere.
@@ -512,7 +512,7 @@ def create_signed_upload(kind: UploadKind, filename: str, size: int) -> dict:
     # Check the type and the size the browser CLAIMS (the real size is checked again in step 3).
     extension = _check(kind, filename, size)
     settings = _configure()
-    # We choose the name: our folder + a random id + the extension, e.g. "hiredesk/cvs/3f9a...c1.pdf".
+    # We choose the name: our folder + a random id + the extension, e.g. "hireplume/cvs/3f9a...c1.pdf".
     public_id = f"{RULES[kind][0]}/{uuid.uuid4().hex}{extension}"
     # What we sign: this exact name and the current time (Cloudinary rejects old signatures).
     params = {"public_id": public_id, "timestamp": int(time.time())}
@@ -580,7 +580,7 @@ def confirm_upload(kind: UploadKind, public_id: str) -> str:
 
 ### The direct upload, step by step
 ```text
-Browser                         HireDesk API                         Cloudinary
+Browser                         HirePlume API                         Cloudinary
   │ POST /public/jobs/{id}/uploads  │                                    │
   │ {kind, filename, size} ───────► │ check type+size, invent id,        │
   │                                 │ sign {public_id, timestamp}        │

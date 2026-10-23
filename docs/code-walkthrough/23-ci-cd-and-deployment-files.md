@@ -34,7 +34,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: hiredesk_test      # ends in _test, as conftest.py requires
+          POSTGRES_DB: hireplume_test      # ends in _test, as conftest.py requires
         ports: ["5432:5432"]
         # Wait until the database is ready before starting the steps.
         options: >-
@@ -42,7 +42,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       # conftest.py reads this to find the test database.
-      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/hiredesk_test
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/hireplume_test
     steps:
       - uses: actions/checkout@v4             # download the repository's code
       - uses: actions/setup-python@v5         # install Python 3.12...
@@ -116,7 +116,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_API_URL: https://hiredesk-api.vercel.app   # baked into the build, like on Vercel
+      NEXT_PUBLIC_API_URL: https://hireplume-api.vercel.app   # baked into the build, like on Vercel
       NEXT_TELEMETRY_DISABLED: "1"                           # don't send Next.js usage statistics
     steps:
       - uses: actions/checkout@v4
@@ -158,7 +158,7 @@ jobs:
       SMTP_HOST: ${{ secrets.SMTP_USERNAME && 'smtp.gmail.com' || '' }}
       SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HireDesk <onboarding@resend.dev>' }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HirePlume <onboarding@resend.dev>' }}
       FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL || 'http://localhost:3000' }}
       # Settings validation needs a value; the report never signs tokens.
       JWT_SECRET: reports-only-placeholder-secret-0123456789
@@ -208,12 +208,12 @@ jobs:
 
 **Vercel project settings** (set in the dashboard or through the API):
 
-| Setting | `hiredesk-official` (site) | `hiredesk-api` (backend) |
+| Setting | `hireplume` (site) | `hireplume-api` (backend) |
 |---|---|---|
 | Root Directory | `frontend` | `backend` |
 | Framework Preset | Next.js | FastAPI |
 | Production branch | `main` | `main` |
-| Domain | `hiredesk-app.vercel.app` | `hiredesk-api.vercel.app` |
+| Domain | `hireplume-app.vercel.app` | `hireplume-api.vercel.app` |
 | Protection | Production public, previews private | same |
 | Environment variables | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `DATABASE_URL` + `DATABASE_URL_UNPOOLED` (from Neon), `JWT_SECRET`, `FRONTEND_BASE_URL`, `CORS_ORIGINS`, `CORS_ORIGIN_REGEX`, `GOOGLE_*`, `CLOUDINARY_*`, `RESEND_API_KEY`, `EMAIL_FROM`, `SMTP_*` (once set up) |
 
@@ -238,7 +238,7 @@ set -euo pipefail
 #   confirm "Q?"        a y/N question
 #   finish              print a summary of what was saved and what's left
 
-# ── The stages part, specific to HireDesk:
+# ── The stages part, specific to HirePlume:
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # the repo root, wherever you run it from
 ENV_FILE="$ROOT/backend/.env"                             # where settings are saved
 PY="$ROOT/.venv/Scripts/python"                           # the project's Python on Windows...
@@ -248,7 +248,7 @@ PY="$ROOT/.venv/Scripts/python"                           # the project's Python
 run_py() { (cd "$ROOT/backend" && "$PY" -c "$1"); }
 
 TOTAL_STAGES=7
-# Stage 1-2: open Google Cloud Console; tell you to add https://hiredesk-app.vercel.app as an
+# Stage 1-2: open Google Cloud Console; tell you to add https://hireplume-app.vercel.app as an
 #            Authorized JavaScript origin and to publish the app (or add test users).
 # Stage 3:   open Google's 2-Step Verification page (needed before app passwords).
 # Stage 4:   open the App Passwords page; ask for your Gmail address and the app password (hidden);
@@ -257,7 +257,7 @@ TOTAL_STAGES=7
 #            (Secrets are passed to Python through ENVIRONMENT VARIABLES, never as command-line
 #             arguments, so they don't show up in process lists.)
 # Stage 5:   send a real test invitation email using the app's own send_email() + invitation_email().
-# Stage 6:   after confirm "y": save the four SMTP settings to the hiredesk-api Vercel project through
+# Stage 6:   after confirm "y": save the four SMTP settings to the hireplume-api Vercel project through
 #            Vercel's REST API (using the Vercel CLI's login token), redeploy production, wait for READY,
 #            and check /health. Also tries to set the GitHub secrets for the Monday report.
 # Stage 7:   open the live login page so you can try "Continue with Google" and inviting someone.

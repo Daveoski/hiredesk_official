@@ -6,7 +6,7 @@ Run it on a schedule from the backend folder, for example every Monday at 8:00:
     python -m app.reports.send_progress_reports --days 1   # a daily report
 
 Linux/macOS cron:   0 8 * * 1  cd /path/to/backend && python -m app.reports.send_progress_reports
-Windows:            schtasks /Create /SC WEEKLY /D MON /ST 08:00 /TN "HireDesk report" ^
+Windows:            schtasks /Create /SC WEEKLY /D MON /ST 08:00 /TN "HirePlume report" ^
                       /TR "cmd /c cd /d C:\\path\\to\\backend && python -m app.reports.send_progress_reports"
 """
 import argparse

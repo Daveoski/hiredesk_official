@@ -754,7 +754,7 @@ wheels = [
 ]
 
 [[package]]
-name = "hiredesk-official"
+name = "hireplume-official"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

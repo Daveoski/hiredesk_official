@@ -1,12 +1,12 @@
-# HireDesk ERD and Architecture
+# HirePlume ERD and Architecture
 
 - **Status:** Draft, as-built baseline
 - **Date:** 2026-10-09
-- **Related:** [PRD](../../specs/prd-hiredesk.md); [SRS](../../specs/srs-hiredesk.md)
+- **Related:** [PRD](../../specs/prd-hireplume.md); [SRS](../../specs/srs-hireplume.md)
 
 ## 1. System Context
 
-HireDesk is a browser-based hiring workspace. The Next.js frontend calls a FastAPI backend. The backend owns authentication, authorization, workflow transitions, validation, and persistence. PostgreSQL is the system of record. Cloudinary and Resend are optional external adapters for document storage and email delivery; Google Identity Services is an optional identity provider.
+HirePlume is a browser-based hiring workspace. The Next.js frontend calls a FastAPI backend. The backend owns authentication, authorization, workflow transitions, validation, and persistence. PostgreSQL is the system of record. Cloudinary and Resend are optional external adapters for document storage and email delivery; Google Identity Services is an optional identity provider.
 
 ```mermaid
 flowchart LR

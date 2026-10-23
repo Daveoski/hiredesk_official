@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { AUTH_STORAGE_KEY } from "@/lib/theme-script";
 import type { User } from "@/lib/types";
 
 interface AuthState {
@@ -18,7 +19,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, user: null }),
     }),
     {
-      name: "hiredesk-auth",
+      name: AUTH_STORAGE_KEY,
       partialize: (state) => ({ token: state.token, user: state.user }),
     },
   ),

@@ -18,7 +18,7 @@ from app.users.router import router as users_router
 settings = get_settings()
 
 app = FastAPI(
-    title="HireDesk API",
+    title="HirePlume API",
     description="Applicant tracking for small companies. Interactive docs: /docs",
     version="0.1.0",
     docs_url="/docs" if settings.enable_docs else None,

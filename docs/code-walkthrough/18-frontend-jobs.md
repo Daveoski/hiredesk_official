@@ -152,7 +152,7 @@ export default function JobPage() {
               <Button
                 variant="outline"
                 // navigator.clipboard.writeText copies text; .then runs after it succeeds.
-                // window.location.origin = "https://hiredesk-app.vercel.app" on the live site.
+                // window.location.origin = "https://hireplume-app.vercel.app" on the live site.
                 onClick={() =>
                   navigator.clipboard
                     .writeText(`${window.location.origin}/apply/${job.data.id}`)

@@ -15,7 +15,7 @@ import logging
 import smtplib
 # EmailMessage = builds a proper email (headers, text part, HTML part).
 from email.message import EmailMessage
-# parseaddr("HireDesk <a@b.com>") -> ("HireDesk", "a@b.com")
+# parseaddr("HirePlume <a@b.com>") -> ("HirePlume", "a@b.com")
 from email.utils import parseaddr
 
 # The Resend SDK (an email-sending service with an API).
@@ -64,7 +64,7 @@ def _send_smtp(to: str, subject: str, text: str, html: str | None) -> None:
     settings = get_settings()
     message = EmailMessage()
     # Gmail only sends as the signed-in account, so its address must be the From address.
-    # Keep the display NAME from EMAIL_FROM ("HireDesk") but use the Gmail address.
+    # Keep the display NAME from EMAIL_FROM ("HirePlume") but use the Gmail address.
     name, address = parseaddr(settings.email_from)
     message["From"] = f"{name} <{settings.smtp_username or address}>" if name else (settings.smtp_username or address)
     message["To"] = to
@@ -133,8 +133,8 @@ def notify_company_admins(
     for email in admin_emails(db, company_id):
         # add_task(function, **arguments): FastAPI calls send_email(...) AFTER sending the response,
         # so the user never waits for the email server.
-        # The "[HireDesk]" prefix makes these easy to filter in an inbox.
-        background_tasks.add_task(send_email, to=email, subject=f"[HireDesk] {subject}", text=body)
+        # The "[HirePlume]" prefix makes these easy to filter in an inbox.
+        background_tasks.add_task(send_email, to=email, subject=f"[HirePlume] {subject}", text=body)
 
 
 # "hiring_manager" -> "hiring manager", "not_recommend" -> "not recommend".
@@ -256,7 +256,7 @@ class ReportEmailed(BaseModel):
 
 """The company-wide hiring progress report, shown on the admin dashboard and sent by email.
 
-HireDesk is built for small companies, so the report loads the company's rows once
+HirePlume is built for small companies, so the report loads the company's rows once
 and counts in Python. That keeps every number easy to read and to change.
 """
 import uuid
@@ -514,7 +514,7 @@ def render_report_text(report: ProgressReport) -> str:
     date = lambda value: value.strftime("%d %b %Y, %H:%M UTC")  # noqa: E731
     # Build the email line by line in a list, then join with newlines at the end.
     lines = [
-        f"HireDesk progress report for {report.company_name}",
+        f"HirePlume progress report for {report.company_name}",
         f"The last {report.period_days} days, up to {date(report.generated_at)}",
         "",
         "AT A GLANCE",
@@ -600,7 +600,7 @@ def render_report_text(report: ProgressReport) -> str:
 
 
 def report_subject(report: ProgressReport) -> str:
-    return f"[HireDesk] Progress report: {report.company_name}, last {report.period_days} days"
+    return f"[HirePlume] Progress report: {report.company_name}, last {report.period_days} days"
 ```
 
 ## `backend/app/reports/router.py`
@@ -653,7 +653,7 @@ Run it on a schedule from the backend folder, for example every Monday at 8:00:
     python -m app.reports.send_progress_reports --days 1   # a daily report
 
 Linux/macOS cron:   0 8 * * 1  cd /path/to/backend && python -m app.reports.send_progress_reports
-Windows:            schtasks /Create /SC WEEKLY /D MON /ST 08:00 /TN "HireDesk report" ^
+Windows:            schtasks /Create /SC WEEKLY /D MON /ST 08:00 /TN "HirePlume report" ^
                       /TR "cmd /c cd /d C:\\path\\to\\backend && python -m app.reports.send_progress_reports"
 """
 # argparse = read command-line options like "--days 1".
