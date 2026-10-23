@@ -48,7 +48,7 @@ The web client is available at `http://localhost:3000`.
 
 ## Tests and Local Data
 
-Run backend tests from `backend/` with `pytest`. The test fixture defaults to PostgreSQL database `hiredesk_test` and asserts that the configured test database name ends with `_test`. It truncates that database before each test. Never point `TEST_DATABASE_URL` at `hiredesk_dev` or any database containing data you want to keep.
+Run backend tests from `backend/` with `pytest`. The test fixture defaults to PostgreSQL database `hireplume_test` and asserts that the configured test database name ends with `_test`. It truncates that database before each test. Never point `TEST_DATABASE_URL` at `hireplume_dev` or any database containing data you want to keep.
 
 The frontend has `bun run typecheck` and `bun run build` checks. Test files are retained as regression coverage; cleanup of local database rows does not require deleting the tests.
 
@@ -56,14 +56,14 @@ The frontend has `bun run typecheck` and `bun run build` checks. Test files are 
 
 The repo deploys as two Vercel projects from the same GitHub repository. Every push to `main` redeploys both.
 
-- Site: https://hiredesk-app.vercel.app (Vercel project `hiredesk-official`)
-- API: https://hiredesk-api.vercel.app (Vercel project `hiredesk-api`, interactive docs at `/docs`)
-- Database: Neon `hiredesk-db`, connected to `hiredesk-api`
+- Site: https://hireplume-app.vercel.app (Vercel project `hireplume`)
+- API: https://hireplume-api.vercel.app (Vercel project `hireplume-api`, interactive docs at `/docs`)
+- Database: Neon `hiredesk-db`, connected to `hireplume-api`
 
 | Vercel project | Root Directory | Framework | Environment variables |
 |---|---|---|---|
-| `hiredesk-api` | `backend` | FastAPI (auto-detected from `app/main.py`) | `DATABASE_URL` (injected by Neon), `JWT_SECRET`, `FRONTEND_BASE_URL`, `CORS_ORIGINS`, optional `CORS_ORIGIN_REGEX`, `GOOGLE_AUTH_ENABLED`, `GOOGLE_CLIENT_ID`, `CLOUDINARY_*`, `RESEND_API_KEY`, `EMAIL_FROM` |
-| `hiredesk` | `frontend` | Next.js (Bun) | `NEXT_PUBLIC_API_URL` (the backend URL), `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |
+| `hireplume-api` | `backend` | FastAPI (auto-detected from `app/main.py`) | `DATABASE_URL` (injected by Neon), `JWT_SECRET`, `FRONTEND_BASE_URL`, `CORS_ORIGINS`, optional `CORS_ORIGIN_REGEX`, `GOOGLE_AUTH_ENABLED`, `GOOGLE_CLIENT_ID`, `CLOUDINARY_*`, `RESEND_API_KEY`, `EMAIL_FROM` |
+| `hireplume` | `frontend` | Next.js (Bun) | `NEXT_PUBLIC_API_URL` (the backend URL), `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |
 
 - The database is Neon Postgres from the Vercel Marketplace (Storage tab), connected to the backend project. The backend converts Neon's `postgres://` URL to the psycopg driver and disables prepared statements for the pooled connection.
 - `.github/workflows/backend.yml` runs the backend tests on every push and pull request. On `main` it then runs `alembic upgrade head` against Neon using the repository secret `NEON_DATABASE_URL_UNPOOLED` (the `DATABASE_URL_UNPOOLED` value from the Neon integration).
@@ -78,7 +78,7 @@ The repo deploys as two Vercel projects from the same GitHub repository. Every p
 
 ### Google sign-in and invitation emails on the live site
 
-Run `bash scripts/setup-google-signin-and-email.sh` from Git Bash. It walks through registering the site with the Google OAuth client and creating a Gmail app password, checks the password, sends a test invitation, and saves the SMTP settings to `backend/.env` and the `hiredesk-api` Vercel project.
+Run `bash scripts/setup-google-signin-and-email.sh` from Git Bash. It walks through registering the site with the Google OAuth client and creating a Gmail app password, checks the password, sends a test invitation, and saves the SMTP settings to `backend/.env` and the `hireplume-api` Vercel project.
 
 ### Scheduled progress reports
 

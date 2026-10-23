@@ -232,7 +232,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, user: null }),
     }),
     {
-      name: "hiredesk-auth",       // the key in localStorage
+      name: AUTH_STORAGE_KEY,      // "hireplume-auth", the key in localStorage
       // Save only these two fields (functions can't be saved).
       partialize: (state) => ({ token: state.token, user: state.user }),
     },

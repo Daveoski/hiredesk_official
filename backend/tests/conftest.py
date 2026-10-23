@@ -2,7 +2,7 @@ import os
 
 # These must be set BEFORE the app is imported, because the app reads them at import time.
 TEST_DATABASE_URL = os.environ.get(
-    "TEST_DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5433/hiredesk_test"
+    "TEST_DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5433/hireplume_test"
 )
 assert TEST_DATABASE_URL.endswith("_test"), "The tests empty every table, so the database name must end with _test"
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL

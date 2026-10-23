@@ -503,7 +503,7 @@ export function GoogleSignInButton({
 }
 ```
 
-> **Remember:** Google only shows this button on websites listed as **Authorized JavaScript origins** for the client ID in Google Cloud Console. That's why the live site needed `https://hiredesk-app.vercel.app` added.
+> **Remember:** Google only shows this button on websites listed as **Authorized JavaScript origins** for the client ID in Google Cloud Console. That's why the live site needed `https://hireplume-app.vercel.app` added.
 
 ## `src/components/layout/auth-layout.tsx` and `logo.tsx`
 

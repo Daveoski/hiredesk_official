@@ -191,10 +191,10 @@ ENV_FILE="$ROOT/backend/.env"
 PY="$ROOT/.venv/Scripts/python"
 [[ -x "$PY" ]] || PY="$ROOT/.venv/bin/python"
 
-SITE="https://hiredesk-app.vercel.app"
-API="https://hiredesk-api.vercel.app"
+SITE="https://hireplume-app.vercel.app"
+API="https://hireplume-api.vercel.app"
 VERCEL_TEAM="team_hnP2WSbOl0854JZfG5T1v0Hm"
-VERCEL_API_PROJECT="prj_ToI1fqITN7tc5oTB2Oul0WXkEe6a"   # hiredesk-api
+VERCEL_API_PROJECT="prj_ToI1fqITN7tc5oTB2Oul0WXkEe6a"   # hireplume-api
 
 # run_py runs a Python snippet from backend/, so it can import the app and read backend/.env.
 run_py() { (cd "$ROOT/backend" && "$PY" -c "$1"); }
@@ -281,7 +281,7 @@ pause "Press Enter once you've seen the email (or to continue anyway)."
 
 # ── 6 ─────────────────────────────────────────────────────────────────────
 stage "Live site: save the Gmail settings on Vercel"
-say "This stores the four SMTP settings on the Vercel project hiredesk-api and redeploys it,"
+say "This stores the four SMTP settings on the Vercel project hireplume-api and redeploys it,"
 say "so invitations sent from ${SITE} go out through Gmail."
 if confirm "Save to Vercel and redeploy the live backend now?"; then
   if SMTP_USERNAME="$SMTP_USERNAME" SMTP_PASSWORD="$SMTP_PASSWORD" TEAM="$VERCEL_TEAM" P="$VERCEL_API_PROJECT" API="$API" run_py "
@@ -300,7 +300,7 @@ for key, value in values.items():
     print('  saved', key if r.status_code < 300 else key + ' FAILED: ' + r.text[:120])
     if r.status_code >= 300: sys.exit(1)
 repo_id = api.get(f'/v9/projects/{P}').json()['link']['repoId']
-d = api.post('/v13/deployments', json={'name': 'hiredesk-api', 'project': P, 'target': 'production',
+d = api.post('/v13/deployments', json={'name': 'hireplume-api', 'project': P, 'target': 'production',
              'gitSource': {'type': 'github', 'repoId': repo_id, 'ref': 'main'}}).json()
 print('  redeploying (about a minute)...', flush=True)
 for _ in range(90):
@@ -314,10 +314,10 @@ sys.exit(0 if ok else 1)
     printf '  %s✓ Live backend updated and healthy.%s\n' "$GREEN" "$RESET"
   else
     warn "Saving or redeploying failed. Is the Vercel CLI logged in? (npx vercel login)"
-    SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hiredesk-api and redeploy")
+    SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hireplume-api and redeploy")
   fi
 else
-  SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hiredesk-api and redeploy")
+  SKIPPED+=("Vercel: add SMTP_HOST/PORT/USERNAME/PASSWORD to hireplume-api and redeploy")
 fi
 # Lets the Monday progress-report workflow send through Gmail too (needs the gh CLI).
 set_secret SMTP_USERNAME "$SMTP_USERNAME"

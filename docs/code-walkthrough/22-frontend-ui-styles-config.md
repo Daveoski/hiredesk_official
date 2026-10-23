@@ -474,7 +474,7 @@ import type { NextConfig } from "next";
 const securityHeaders = [
   // Invitation links carry a one-time token in the URL: never send the full URL to other sites.
   // (When a page loads something from another site, the browser normally says which page it came
-  //  from: the "referrer". This sends only "https://hiredesk-app.vercel.app", never the path or ?token=.)
+  //  from: the "referrer". This sends only "https://hireplume-app.vercel.app", never the path or ?token=.)
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Don't let the browser guess a file's type and run it as a script.
   { key: "X-Content-Type-Options", value: "nosniff" },

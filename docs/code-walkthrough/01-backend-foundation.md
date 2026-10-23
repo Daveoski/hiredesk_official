@@ -8,8 +8,8 @@
 
 # FastAPI is the web framework. Creating a FastAPI() object gives us an app that answers HTTP requests.
 from fastapi import FastAPI
-# CORS = Cross-Origin Resource Sharing. Browsers block a page on one website (hiredesk-app.vercel.app)
-# from calling an API on another (hiredesk-api.vercel.app) unless the API says that website is allowed.
+# CORS = Cross-Origin Resource Sharing. Browsers block a page on one website (hireplume-app.vercel.app)
+# from calling an API on another (hireplume-api.vercel.app) unless the API says that website is allowed.
 from fastapi.middleware.cors import CORSMiddleware
 # text() lets us send a raw SQL string to the database (used once, in the health check).
 from sqlalchemy import text

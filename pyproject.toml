@@ -1,5 +1,5 @@
 [project]
-name = "hiredesk-official"
+name = "hireplume-official"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -28,7 +28,7 @@ dependencies = [
 entrypoint = "main:app"
 
 [project.scripts]
-hiredesk-official = "hiredesk_official:main"
+hireplume-official = "hireplume_official:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
