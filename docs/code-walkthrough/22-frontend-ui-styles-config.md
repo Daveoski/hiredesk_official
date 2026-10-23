@@ -394,7 +394,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
   --muted-foreground: #5d6180;    /* secondary text */
   --border: #e0e3f0;
   --input: #d5d9ea;
-  --primary: #3a36e0;             /* HireDesk indigo */
+  --primary: #3a36e0;             /* HirePlume indigo */
   --primary-foreground: #ffffff;  /* text on primary */
   --accent: #e8e9ff;              /* light indigo */
   --accent-foreground: #2723a8;
@@ -478,7 +478,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Don't let the browser guess a file's type and run it as a script.
   { key: "X-Content-Type-Options", value: "nosniff" },
-  // No other site may show HireDesk inside a frame (clickjacking).
+  // No other site may show HirePlume inside a frame (clickjacking).
   { key: "X-Frame-Options", value: "DENY" },
   // Switch off browser features the app never uses.
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },

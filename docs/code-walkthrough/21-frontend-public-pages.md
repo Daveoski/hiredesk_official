@@ -391,7 +391,7 @@ export default function Home() {
         <header>
           <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12" aria-label="Main navigation">
             <Link href="/" className="font-display text-2xl font-semibold text-white sm:text-3xl">
-              HireDesk<span className="text-[#db7559]">.</span>
+              HirePlume<span className="text-[#db7559]">.</span>
             </Link>
             <div className="flex items-center gap-4 sm:gap-8">
               <a href="#workflow" className="hidden text-sm text-white/75 transition hover:text-white sm:inline">Workflow</a>
@@ -408,7 +408,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-7xl px-5 pb-7 pt-16 sm:px-8 sm:pb-9 lg:px-12">
           <ScrollReveal className="max-w-4xl">
             <p className="mb-5 text-xs font-semibold uppercase text-[#e6f18f]">A considered way to build your team</p>
-            <h1 className="font-display text-6xl font-semibold leading-[0.98] text-white sm:text-7xl lg:text-8xl">HireDesk</h1>
+            <h1 className="font-display text-6xl font-semibold leading-[0.98] text-white sm:text-7xl lg:text-8xl">HirePlume</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/85 sm:text-xl">
               Every application, conversation, and assessment in its right place. A thoughtful hiring workspace for teams that want to make better decisions together.
             </p>
@@ -472,7 +472,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase text-[#e6f18f]">Made for distinct responsibilities</p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-5xl">A shared outcome, with clear ownership.</h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/70">
-              HireDesk keeps company administration, candidate assessment, and interviewer feedback in their proper lanes.
+              HirePlume keeps company administration, candidate assessment, and interviewer feedback in their proper lanes.
             </p>
           </ScrollReveal>
 
@@ -536,7 +536,7 @@ export default function Home() {
           </ScrollReveal>
 
           <div className="flex flex-col gap-5 pt-7 text-sm text-[#5d6761] sm:flex-row sm:items-center sm:justify-between">
-            <Link href="/" className="font-display text-xl font-semibold text-[#17201d]">HireDesk<span className="text-[#a84c37]">.</span></Link>
+            <Link href="/" className="font-display text-xl font-semibold text-[#17201d]">HirePlume<span className="text-[#a84c37]">.</span></Link>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-7">
               {/* mailto: opens the visitor's email app; tel: opens the phone dialer. */}
               <a className="inline-flex items-center gap-2 hover:text-[#17201d]" href="mailto:okechukwuorjionuchie@gmail.com">

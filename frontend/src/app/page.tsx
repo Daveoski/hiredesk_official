@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { HeroSlider } from "@/components/home/hero-slider";
 import { SiteHeader } from "@/components/home/site-header";
+import { LogoMark } from "@/components/layout/logo";
 import { ScrollReveal } from "@/components/shared/scroll-reveal";
 
 const workflow = [
@@ -140,7 +141,7 @@ export default function Home() {
                 Hire the right people, <span className="hero-highlight">with confidence.</span>
               </h1>
               <p className="hero-in mt-6 max-w-2xl text-lg leading-8 text-white/85 sm:text-xl" style={{ animationDelay: "240ms" }}>
-                HireDesk brings every application, interview, scorecard and decision into one calm workspace, so your team can move quickly and decide together.
+                HirePlume brings every application, interview, scorecard and decision into one calm workspace, so your team can move quickly and decide together.
               </p>
               <div className="hero-in mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "360ms" }}>
                 <Link href="/register" className="cta-shine group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#e6f18f] px-6 text-sm font-semibold text-[#17201d] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_30px_-10px_rgba(230,241,143,0.7)]">
@@ -160,7 +161,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="overflow-hidden border-b border-(--home-line) bg-[#e6f18f] py-4" aria-label="What HireDesk includes">
+      <div className="overflow-hidden border-b border-(--home-line) bg-[#e6f18f] py-4" aria-label="What HirePlume includes">
         <div className="marquee flex w-max gap-10 text-sm font-semibold uppercase tracking-[0.14em] text-[#17201d]">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex gap-10" aria-hidden={copy === 1}>
@@ -249,7 +250,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase text-[#e6f18f]">Made for distinct responsibilities</p>
             <h2 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-5xl">A shared outcome, with clear ownership.</h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/70">
-              HireDesk keeps company administration, candidate assessment, and interviewer feedback in their proper lanes.
+              HirePlume keeps company administration, candidate assessment, and interviewer feedback in their proper lanes.
             </p>
           </ScrollReveal>
 
@@ -318,7 +319,12 @@ export default function Home() {
 
       <footer className="border-t border-(--home-line) bg-(--home-paper)">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-10 text-sm text-(--home-body) sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
-          <Link href="/" className="font-display text-xl font-semibold text-(--home-ink)">HireDesk<span className="text-(--home-coral)">.</span></Link>
+          <Link href="/" className="inline-flex items-center gap-2 font-display text-xl font-semibold text-(--home-ink)">
+            <LogoMark className="size-7" />
+            <span>
+              HirePlume<span className="text-(--home-coral)">.</span>
+            </span>
+          </Link>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-7">
             <a className="inline-flex items-center gap-2 hover:text-(--home-ink)" href="mailto:okechukwuorjionuchie@gmail.com">
               <Mail className="size-4" /> okechukwuorjionuchie@gmail.com

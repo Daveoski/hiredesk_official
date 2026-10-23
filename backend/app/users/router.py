@@ -120,10 +120,10 @@ def _issue_and_send(db: DbSession, invitation: Invitation, admin: User) -> UserI
 def invitation_email(name: str, inviter: str, company: str, role: str, invite_url: str) -> tuple[str, str, str]:
     """The invitation as (subject, plain text, HTML). The HTML uses inline styles, which every mail app supports."""
     role_label = role.replace("_", " ")
-    subject = f"{inviter} invited you to join {company} on HireDesk"
+    subject = f"{inviter} invited you to join {company} on HirePlume"
     text = (
         f"Hi {name},\n\n"
-        f"{inviter} has invited you to join {company} on HireDesk as a {role_label}.\n\n"
+        f"{inviter} has invited you to join {company} on HirePlume as a {role_label}.\n\n"
         f"Accept your invitation (the link works once and expires in 7 days):\n{invite_url}\n\n"
         "You can set a password or continue with the Google account this email was sent to.\n"
     )
@@ -132,11 +132,11 @@ def invitation_email(name: str, inviter: str, company: str, role: str, invite_ur
     html = f"""\
 <div style="background:#f5f6fb;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#14162b">
   <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e0e3f0;border-radius:12px;padding:32px">
-    <p style="margin:0 0 24px;font-size:20px;font-weight:bold;color:#3a36e0">HireDesk</p>
+    <p style="margin:0 0 24px;font-size:20px;font-weight:bold;color:#3a36e0">HirePlume</p>
     <p style="margin:0 0 12px;font-size:16px">Hi {safe['name']},</p>
     <p style="margin:0 0 24px;font-size:16px;line-height:24px">
       <strong>{safe['inviter']}</strong> has invited you to join <strong>{safe['company']}</strong>
-      on HireDesk as a <strong>{safe['role']}</strong>.
+      on HirePlume as a <strong>{safe['role']}</strong>.
     </p>
     <p style="margin:0 0 28px">
       <a href="{safe['url']}" style="display:inline-block;background:#3a36e0;color:#ffffff;text-decoration:none;

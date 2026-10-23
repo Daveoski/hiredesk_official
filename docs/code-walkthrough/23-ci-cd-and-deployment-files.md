@@ -158,7 +158,7 @@ jobs:
       SMTP_HOST: ${{ secrets.SMTP_USERNAME && 'smtp.gmail.com' || '' }}
       SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HireDesk <onboarding@resend.dev>' }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'HirePlume <onboarding@resend.dev>' }}
       FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL || 'http://localhost:3000' }}
       # Settings validation needs a value; the report never signs tokens.
       JWT_SECRET: reports-only-placeholder-secret-0123456789
@@ -238,7 +238,7 @@ set -euo pipefail
 #   confirm "Q?"        a y/N question
 #   finish              print a summary of what was saved and what's left
 
-# ── The stages part, specific to HireDesk:
+# ── The stages part, specific to HirePlume:
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # the repo root, wherever you run it from
 ENV_FILE="$ROOT/backend/.env"                             # where settings are saved
 PY="$ROOT/.venv/Scripts/python"                           # the project's Python on Windows...

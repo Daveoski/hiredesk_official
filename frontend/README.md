@@ -1,4 +1,4 @@
-# HireDesk frontend
+# HirePlume frontend
 
 Next.js (App Router), TypeScript, Tailwind CSS v4, shadcn/ui-style components, TanStack Query, Zustand, Zod.
 

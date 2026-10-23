@@ -1,6 +1,6 @@
-# HireDesk
+# HirePlume
 
-HireDesk is an applicant-tracking platform with a Next.js web client and a FastAPI backend. The backend owns authentication, authorization, hiring workflow rules, persistence, file uploads, and email delivery.
+HirePlume is an applicant-tracking platform with a Next.js web client and a FastAPI backend. The backend owns authentication, authorization, hiring workflow rules, persistence, file uploads, and email delivery.
 
 ## Repository Layout
 

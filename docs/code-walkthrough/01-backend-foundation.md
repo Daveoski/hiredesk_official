@@ -31,7 +31,7 @@ from app.users.router import router as users_router             # /users : team 
 # Create THE application. Vercel looks for a variable named exactly "app" in app/main.py.
 # title/description/version only appear on the automatic docs page at /docs.
 app = FastAPI(
-    title="HireDesk API",
+    title="HirePlume API",
     description="Applicant tracking for small companies. Interactive docs: /docs",
     version="0.1.0",
 )
@@ -112,7 +112,7 @@ class Settings(BaseSettings):
     # Websites allowed to call the API (used by CORS in main.py). Default = local development.
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
     # Optional. Also allow origins matching this regex, e.g. Vercel preview deployments:
-    #   https://hiredesk-frontend-.*\.vercel\.app
+    #   https://hireplume-frontend-.*\.vercel\.app
     # "str | None" = text or nothing; default nothing.
     cors_origin_regex: str | None = None
 
@@ -127,7 +127,7 @@ class Settings(BaseSettings):
 
     # Email through Resend. Empty key = emails are skipped with a warning.
     resend_api_key: str = ""
-    email_from: str = "HireDesk <onboarding@resend.dev>"
+    email_from: str = "HirePlume <onboarding@resend.dev>"
 
     # Optional SMTP sending, used instead of Resend when SMTP_HOST is set.
     # Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_USERNAME=you@gmail.com,

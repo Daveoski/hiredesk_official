@@ -35,8 +35,10 @@ ALLOWED_DOCUMENT_EXTENSIONS = ALLOWED_CV_EXTENSIONS | {".png", ".jpg", ".jpeg"}
 MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
 
 UploadKind = Literal["cv", "document"]
-CV_FOLDER = "hiredesk/cvs"
-DOCUMENT_FOLDER = "hiredesk/application-documents"
+CV_FOLDER = "hireplume/cvs"
+DOCUMENT_FOLDER = "hireplume/application-documents"
+# Files uploaded before the HireDesk -> HirePlume rename stay in their old folder.
+STORAGE_ROOTS = ("hireplume", "hiredesk")
 
 # kind -> (folder, allowed extensions, max bytes, size error, type error)
 RULES: dict[str, tuple[str, set[str], int, str, str]] = {
@@ -174,7 +176,7 @@ SIGNED_LINK_SECONDS = 10 * 60
 def _public_id(stored_url: str, cloud_name: str) -> str | None:
     """The raw file's public id in a stored delivery URL, or None for a URL that is not ours."""
     match = re.fullmatch(
-        rf"https://res\.cloudinary\.com/{re.escape(cloud_name)}/raw/upload/(?:v\d+/)?(hiredesk/[\w/.-]+|[\w.-]+)",
+        rf"https://res\.cloudinary\.com/{re.escape(cloud_name)}/raw/upload/(?:v\d+/)?((?:{'|'.join(STORAGE_ROOTS)})/[\w/.-]+|[\w.-]+)",
         stored_url,
     )
     return match.group(1) if match else None

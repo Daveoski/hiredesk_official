@@ -1,6 +1,6 @@
 """The company-wide hiring progress report, shown on the admin dashboard and sent by email.
 
-HireDesk is built for small companies, so the report loads the company's rows once
+HirePlume is built for small companies, so the report loads the company's rows once
 and counts in Python. That keeps every number easy to read and to change.
 """
 import uuid
@@ -228,7 +228,7 @@ def render_report_text(report: ProgressReport) -> str:
     t = report.totals
     date = lambda value: value.strftime("%d %b %Y, %H:%M UTC")  # noqa: E731
     lines = [
-        f"HireDesk progress report for {report.company_name}",
+        f"HirePlume progress report for {report.company_name}",
         f"The last {report.period_days} days, up to {date(report.generated_at)}",
         "",
         "AT A GLANCE",
@@ -311,4 +311,4 @@ def render_report_text(report: ProgressReport) -> str:
 
 
 def report_subject(report: ProgressReport) -> str:
-    return f"[HireDesk] Progress report: {report.company_name}, last {report.period_days} days"
+    return f"[HirePlume] Progress report: {report.company_name}, last {report.period_days} days"

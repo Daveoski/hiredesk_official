@@ -1,4 +1,4 @@
-# HireDesk research
+# HirePlume research
 
 Fill this in after the real interviews and the real price check. Do not write answers you did not hear or see yourself.
 
@@ -66,6 +66,6 @@ Pick two real tools used by small companies. Copy the prices from each tool's ow
 | Candidate applies without an account? | | |
 | Extra costs (setup, add-ons, limits) | | |
 
-Conclusion (your own words): how does a "pay per active job" price for HireDesk compare with these two?
+Conclusion (your own words): how does a "pay per active job" price for HirePlume compare with these two?
 
 -

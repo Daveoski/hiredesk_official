@@ -1,6 +1,6 @@
 # Part 4: Sign-up, login, Google sign-in and invitations (copyable)
 
-`backend/app/auth/router.py`, everything about **getting into** HireDesk:
+`backend/app/auth/router.py`, everything about **getting into** HirePlume:
 
 | Endpoint | Who | What it does |
 |---|---|---|
@@ -172,7 +172,7 @@ def google_auth(body: GoogleAuthRequest, db: DbSession, background_tasks: Backgr
     if not body.create_company:
         raise HTTPException(
             404,
-            "No HireDesk account uses this Google email. Create a company, or ask your company admin for an invitation.",
+            "No HirePlume account uses this Google email. Create a company, or ask your company admin for an invitation.",
         )
 
     # CASE 5: register a new company with Google.
@@ -226,10 +226,10 @@ def change_password(body: ChangePasswordRequest, user: CurrentUser, db: DbSessio
     background_tasks.add_task(
         send_email,
         to=user.email,
-        subject="Your HireDesk password was changed",
+        subject="Your HirePlume password was changed",
         text=(
             f"Hi {user.full_name},\n\n"
-            "The password for your HireDesk account was just changed.\n"
+            "The password for your HirePlume account was just changed.\n"
             "If this was not you, contact your company admin straight away.\n"
         ),
     )
@@ -289,7 +289,7 @@ POST /auth/google
  ├─ Google token invalid / not for our app? ─────────────► 401
  ├─ Email not verified by Google? ───────────────────────► 401
  ├─ From the invite page?  expired/used/fake → 410 ; wrong Google account → 403
- ├─ Already a HireDesk user? ────────────────────────────► sign in
+ ├─ Already a HirePlume user? ────────────────────────────► sign in
  ├─ Has an open invitation? ─────────────────────────────► join that company + role, sign in
  ├─ Not from the Register page? ─────────────────────────► 404 "no account"
  └─ From the Register page ──────────────────────────────► create company + admin, sign in

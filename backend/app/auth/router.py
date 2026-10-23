@@ -133,7 +133,7 @@ def google_auth(body: GoogleAuthRequest, db: DbSession, background_tasks: Backgr
     if not body.create_company:
         raise HTTPException(
             404,
-            "No HireDesk account uses this Google email. Create a company, or ask your company admin for an invitation.",
+            "No HirePlume account uses this Google email. Create a company, or ask your company admin for an invitation.",
         )
 
     full_name = str(claims.get("name") or email.split("@", 1)[0])
@@ -184,10 +184,10 @@ def change_password(body: ChangePasswordRequest, user: CurrentUser, db: DbSessio
     background_tasks.add_task(
         send_email,
         to=user.email,
-        subject="Your HireDesk password was changed",
+        subject="Your HirePlume password was changed",
         text=(
             f"Hi {user.full_name},\n\n"
-            "The password for your HireDesk account was just changed.\n"
+            "The password for your HirePlume account was just changed.\n"
             "If this was not you, contact your company admin straight away.\n"
         ),
     )

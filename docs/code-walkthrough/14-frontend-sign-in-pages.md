@@ -108,7 +108,7 @@ function LoginForm() {
     setGoogleSubmitting(true);
     try {
       // The backend verifies the token with Google (Part 4). No create_company here:
-      // from the login page an unknown Google account gets "No HireDesk account..." (404).
+      // from the login page an unknown Google account gets "No HirePlume account..." (404).
       const token = await api.post<{ access_token: string }>("/auth/google", { id_token: idToken });
       useAuthStore.setState({ token: token.access_token });
       const user = await api.get<User>("/auth/me");
@@ -338,7 +338,7 @@ function AcceptInviteForm() {
 
   return (
     <AuthLayout
-      title="Join your HireDesk team"
+      title="Join your HirePlume team"
       subtitle="Continue with the Google account your invitation was sent to, or choose a password."
     >
       {/* Only show the options when the link actually has a token. <>...</> = a "fragment":
@@ -545,7 +545,7 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
 ```tsx
 import Link from "next/link";
 
-// The HireDesk logo: a small drawn mark + the name. It links to the dashboard by default.
+// The HirePlume logo: a small drawn mark + the name. It links to the dashboard by default.
 export function Logo({ href = "/overview" }: { href?: string }) {
   return (
     <Link href={href} className="inline-flex items-center gap-2 font-display text-xl font-bold tracking-tight">
@@ -555,7 +555,7 @@ export function Logo({ href = "/overview" }: { href?: string }) {
         <span className="absolute left-1.5 top-1/2 size-2 -translate-y-1/2 rounded-full bg-white" />
         <span className="absolute right-1.5 top-1/2 size-2 -translate-y-1/2 rounded-full bg-white/60" />
       </span>
-      HireDesk
+      HirePlume
     </Link>
   );
 }

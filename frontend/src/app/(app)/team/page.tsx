@@ -206,7 +206,7 @@ function InviteLinkBox({ url, name }: { url: string; name: string }) {
           type="button"
           variant="soft"
           className="self-start"
-          onClick={() => shareLink("Join my team on HireDesk", `Hi ${name}, here is your link to join our team on HireDesk:`, url)}
+          onClick={() => shareLink("Join my team on HirePlume", `Hi ${name}, here is your link to join our team on HirePlume:`, url)}
         >
           <Share2 /> Share link (WhatsApp, SMS, email…)
         </Button>

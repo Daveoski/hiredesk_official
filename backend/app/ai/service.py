@@ -43,7 +43,7 @@ IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
 # Errors that mean "this model cannot take the request right now": overloaded, timed out or out of quota.
 BUSY_CODES = {429, 500, 503, 504}
 
-SYSTEM_PROMPT = """You are the hiring assistant inside HireDesk, an applicant tracking system used by \
+SYSTEM_PROMPT = """You are the hiring assistant inside HirePlume, an applicant tracking system used by \
 small companies. You help hiring managers write job adverts, screen applications and weigh interview \
 results. Hiring managers make the final decisions; your output is advice they will read and check.
 

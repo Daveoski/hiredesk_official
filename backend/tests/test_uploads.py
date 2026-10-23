@@ -42,7 +42,7 @@ def test_upload_signature_is_valid_and_bound_to_one_file(world):
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["upload_url"] == "https://api.cloudinary.com/v1_1/test-cloud/raw/upload"
-    assert body["public_id"].startswith("hiredesk/cvs/") and body["public_id"].endswith(".pdf")
+    assert body["public_id"].startswith("hireplume/cvs/") and body["public_id"].endswith(".pdf")
     fields = body["fields"]
     assert fields["public_id"] == body["public_id"]
     assert fields["api_key"] == "test-key"
@@ -92,7 +92,7 @@ def test_direct_upload_references_are_checked(world, cloudinary_files):
     url = f"/public/jobs/{world.job_id}/applications"
     # Not a file we signed: another folder, or a made-up name.
     assert world.client.post(url, data={**FORM, "cv_public_id": "other/folder/cv.pdf"}).status_code == 422
-    assert world.client.post(url, data={**FORM, "cv_public_id": "hiredesk/cvs/" + "a" * 32 + ".exe"}).status_code == 422
+    assert world.client.post(url, data={**FORM, "cv_public_id": "hireplume/cvs/" + "a" * 32 + ".exe"}).status_code == 422
     # Signed but never uploaded.
     missing = sign(world).json()["public_id"]
     assert world.client.post(url, data={**FORM, "cv_public_id": missing}).status_code == 422

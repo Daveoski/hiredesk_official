@@ -8,8 +8,8 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bric
 const body = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
 
 export const metadata: Metadata = {
-  title: "HireDesk | Smarter Hiring for Modern Teams",
-  description: "HireDesk helps companies review applicants, coordinate interviews, and make confident hiring decisions with a clear, collaborative workflow.",
+  title: "HirePlume | Smarter Hiring for Modern Teams",
+  description: "HirePlume helps companies review applicants, coordinate interviews, and make confident hiring decisions with a clear, collaborative workflow.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

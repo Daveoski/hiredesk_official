@@ -15,7 +15,7 @@ def test_invitation_email_contains_the_working_link(world, outbox):
 
     message = outbox[-1]
     assert message["to"] == "hana@acme.com"
-    assert message["subject"] == "Ada Admin invited you to join Acme on HireDesk"
+    assert message["subject"] == "Ada Admin invited you to join Acme on HirePlume"
     assert body["invite_url"] in message["text"]
     assert "hiring manager" in message["text"]
     # The HTML version has a button with the same link, and escapes names.
@@ -133,7 +133,7 @@ def test_smtp_is_used_when_configured(monkeypatch):
     monkeypatch.setattr(settings, "smtp_port", 587)
     monkeypatch.setattr(settings, "smtp_username", "team@gmail.com")
     monkeypatch.setattr(settings, "smtp_password", "app-password")
-    monkeypatch.setattr(settings, "email_from", "HireDesk <onboarding@resend.dev>")
+    monkeypatch.setattr(settings, "email_from", "HirePlume <onboarding@resend.dev>")
     monkeypatch.setattr(email.smtplib, "SMTP", FakeSMTP)
 
     assert email.send_email(to="new@acme.com", subject="Hi", text="Plain", html="<p>Rich</p>") is True
@@ -142,7 +142,7 @@ def test_smtp_is_used_when_configured(monkeypatch):
         ("starttls",),
         ("login", "team@gmail.com", "app-password"),
         # Gmail sends as the signed-in account, so that address replaces the configured one.
-        ("send", "HireDesk <team@gmail.com>", "new@acme.com", "Hi", True),
+        ("send", "HirePlume <team@gmail.com>", "new@acme.com", "Hi", True),
     ]
 
 

@@ -30,12 +30,12 @@ def test_assignment_has_no_date_until_the_interviewer_schedules(world):
             "starts_at": world.slot(10).isoformat(),
             "duration_minutes": 45,
             "meeting_type": "in_person",
-            "location": "HireDesk office, meeting room 2",
+            "location": "HirePlume office, meeting room 2",
         },
     )
     assert scheduled.status_code == 200
     assert scheduled.json()["meeting_type"] == "in_person"
-    assert scheduled.json()["location"] == "HireDesk office, meeting room 2"
+    assert scheduled.json()["location"] == "HirePlume office, meeting room 2"
 
 
 def test_overlapping_interviews_for_the_same_interviewer_are_rejected(world):

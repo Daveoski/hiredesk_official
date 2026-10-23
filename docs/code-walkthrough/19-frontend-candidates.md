@@ -591,7 +591,7 @@ import type { Stage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // The "stage thread": a line that runs through the hiring stages and fills up to the current one.
-// It is the signature of HireDesk and is reused on the candidate page and the board.
+// It is the signature of HirePlume and is reused on the candidate page and the board.
 export function StageThread({ stage, className }: { stage: Stage; className?: string }) {
   const finished = stage === "hired";
   const rejected = stage === "rejected";

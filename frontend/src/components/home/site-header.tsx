@@ -3,6 +3,7 @@
 import { ArrowUpRight, LayoutDashboard, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { LogoMark } from "@/components/layout/logo";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { HOME, ROLE_LABEL } from "@/lib/constants";
@@ -104,8 +105,11 @@ export function SiteHeader() {
         )}
         aria-label="Main navigation"
       >
-        <Link href="/" className="font-display text-2xl font-semibold text-white sm:text-3xl">
-          HireDesk<span className="text-[#db7559]">.</span>
+        <Link href="/" className="inline-flex items-center gap-2.5 font-display text-2xl font-semibold text-white sm:text-3xl">
+          <LogoMark className="size-8 sm:size-9" />
+          <span>
+            HirePlume<span className="text-[#db7559]">.</span>
+          </span>
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

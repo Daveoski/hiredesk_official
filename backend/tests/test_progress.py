@@ -54,14 +54,14 @@ def test_admin_is_emailed_as_hiring_progresses(world, outbox):
 
     subjects = admin_subjects(outbox)
     assert [subject.split(":")[0] for subject in subjects] == [
-        "[HireDesk] Candidate moved to screen",
-        "[HireDesk] Candidate moved to interview",
-        "[HireDesk] Interviewer assigned",
-        "[HireDesk] Interview scheduled",
-        "[HireDesk] Scorecard submitted",
-        "[HireDesk] Candidate rejected",
+        "[HirePlume] Candidate moved to screen",
+        "[HirePlume] Candidate moved to interview",
+        "[HirePlume] Interviewer assigned",
+        "[HirePlume] Interview scheduled",
+        "[HirePlume] Scorecard submitted",
+        "[HirePlume] Candidate rejected",
     ]
-    scorecard_email = next(m for m in outbox if m["subject"].startswith("[HireDesk] Scorecard submitted"))
+    scorecard_email = next(m for m in outbox if m["subject"].startswith("[HirePlume] Scorecard submitted"))
     assert "Recommendation: recommend" in scorecard_email["text"]
     assert "Average rating: 4.0/5" in scorecard_email["text"]
     assert "/overview" in scorecard_email["text"]
@@ -73,7 +73,7 @@ def test_admin_is_emailed_when_an_invited_teammate_joins(world, outbox):
     )
     token = invite.json()["invite_url"].split("token=", 1)[1]
     assert world.client.post("/auth/accept-invite", json={"token": token, "password": PASSWORD}).status_code == 201
-    assert "[HireDesk] Nia New joined your team" in admin_subjects(outbox)
+    assert "[HirePlume] Nia New joined your team" in admin_subjects(outbox)
 
 
 def test_progress_report_is_for_admins_and_shows_the_whole_company(world):
@@ -113,7 +113,7 @@ def test_admin_can_email_the_progress_report(world, outbox):
     response = world.client.post("/reports/progress/email?days=30", headers=world.admin)
     assert response.status_code == 200
     assert response.json() == {"sent_to": ["admin@acme.com"]}
-    assert outbox[0]["subject"] == "[HireDesk] Progress report: Acme, last 30 days"
+    assert outbox[0]["subject"] == "[HirePlume] Progress report: Acme, last 30 days"
     assert "Backend Developer" in outbox[0]["text"]
     assert "Cathy Candidate" in outbox[0]["text"]
 

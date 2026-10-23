@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     frontend_base_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
     # Optional. Also allow origins matching this regex, e.g. Vercel preview deployments:
-    #   https://hiredesk-frontend-.*\.vercel\.app
+    #   https://hireplume-frontend-.*\.vercel\.app
     cors_origin_regex: str | None = None
     # Serves /docs, /redoc and /openapi.json. Off by default so production doesn't publish them;
     # set ENABLE_DOCS=true in your local .env.
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     gemini_fallback_model: str = "gemini-flash-lite-latest"
 
     resend_api_key: str = ""
-    email_from: str = "HireDesk <onboarding@resend.dev>"
+    email_from: str = "HirePlume <onboarding@resend.dev>"
 
     # Optional SMTP sending, used instead of Resend when SMTP_HOST is set.
     # Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_USERNAME=you@gmail.com,
